@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  personnel
+}
+
+enum AuditActorRole {
+  admin
+  personnel
+  kiosk
+  system
+}
+
+enum QuestionType {
+  smiley_rating
+}
+
+model Admin {
+  adminId      Int         @id @default(autoincrement()) @map("admin_id")
+  username     String      @unique
+  passwordHash String      @map("password_hash")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamp(0)
+
+  createdPersonnel Personnel[] @relation("PersonnelCreatedBy")
+  sessions         Session[]   @relation("AdminSessions")
+
+  @@map("admins")
+}
+
+model Personnel {
+  personnelId    Int       @id @default(autoincrement()) @map("personnel_id")
+  name           String
+  email          String    @unique
+  passwordHash   String    @map("password_hash")
+  passwordExpiry DateTime? @map("password_expiry") @db.Timestamp(0)
+  profileImage   String?   @map("profile_image") @db.VarChar(255)
+  createdByAdmin Int       @map("created_by_admin")
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  creator      Admin              @relation("PersonnelCreatedBy", fields: [createdByAdmin], references: [adminId], onUpdate: Restrict)
+  formsCreated Form[]
+  sessions     Session[]          @relation("PersonnelSessions")
+  passwordHist PasswordHistory[]
+
+  @@map("personnel")
+}
+
+model Form {
+  formId               Int       @id @default(autoincrement()) @map("form_id")
+  title                String
+  description          String?   @db.Text
+  language             String    @db.VarChar(16)
+  isActive             Boolean   @default(true) @map("is_active")
+  createdByPersonnelId Int?      @map("created_by_personnel_id")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  createdBy Personnel? @relation(fields: [createdByPersonnelId], references: [personnelId], onUpdate: Restrict)
+  questions Question[]
+  feedbacks  Feedback[]
+
+  @@index([createdByPersonnelId], map: "forms_created_by_personnel_id_idx")
+  @@map("forms")
+}
+
+model Question {
+  questionId    Int          @id @default(autoincrement()) @map("question_id")
+  formId        Int          @map("form_id")
+  type          QuestionType
+  label         String
+  displayOrder  Int          @map("display_order")
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  form      Form       @relation(fields: [formId], references: [formId], onDelete: Restrict, onUpdate: Restrict)
+  responses Response[]
+
+  @@index([formId, displayOrder], map: "questions_form_id_display_order_idx")
+  @@map("questions")
+}
+
+model Feedback {
+  feedbackId        Int       @id @default(autoincrement()) @map("feedback_id")
+  formId            Int       @map("form_id")
+  userName          String?   @map("user_name") @db.VarChar(100)
+  assistedEmployee  String?   @map("assisted_employee") @db.VarChar(100)
+  submittedAt       DateTime  @default(now()) @map("submitted_at") @db.Timestamp(0)
+
+  form      Form       @relation(fields: [formId], references: [formId], onDelete: Restrict, onUpdate: Restrict)
+  responses Response[]
+
+  @@index([formId, submittedAt], map: "feedback_form_id_submitted_at_idx")
+  @@map("feedback")
+}
+
+model Response {
+  responseId   Int      @id @default(autoincrement()) @map("response_id")
+  feedbackId   Int      @map("feedback_id")
+  questionId   Int      @map("question_id")
+  answerValue  Int      @map("answer_value") @db.TinyInt
+
+  feedback Feedback @relation(fields: [feedbackId], references: [feedbackId], onDelete: Restrict, onUpdate: Restrict)
+  question Question @relation(fields: [questionId], references: [questionId], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([questionId], map: "responses_question_id_idx")
+  @@map("responses")
+}
+
+model Session {
+  sessionId        Int       @id @default(autoincrement()) @map("session_id")
+  tokenId          String    @unique @map("token_id") @db.VarChar(128)
+  role             UserRole
+  adminId          Int?      @map("admin_id")
+  personnelId      Int?      @map("personnel_id")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamp(0)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamp(0)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+
+  admin     Admin?     @relation("AdminSessions", fields: [adminId], references: [adminId], onDelete: Restrict, onUpdate: Restrict)
+  personnel Personnel? @relation("PersonnelSessions", fields: [personnelId], references: [personnelId], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([role], map: "sessions_role_idx")
+  @@index([expiresAt], map: "sessions_expires_at_idx")
+  @@map("sessions")
+}
+
+model PasswordHistory {
+  passwordHistoryId Int      @id @default(autoincrement()) @map("password_history_id")
+  personnelId       Int      @map("personnel_id")
+  passwordHash      String   @map("password_hash")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+
+  personnel Personnel @relation(fields: [personnelId], references: [personnelId], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([personnelId], map: "password_history_personnel_id_idx")
+  @@map("password_history")
+}
+
+model AuditLog {
+  logId       Int            @id @default(autoincrement()) @map("log_id")
+  actorRole   AuditActorRole @map("actor_role")
+  actorId     Int?           @map("actor_id")
+  actionType  String         @map("action_type") @db.VarChar(120)
+  targetType  String         @map("target_type") @db.VarChar(120)
+  targetId    Int?           @map("target_id")
+  metadataJson Json?         @map("metadata_json")
+  occurredAt  DateTime       @default(now()) @map("occurred_at") @db.Timestamp(0)
+
+  @@index([occurredAt], map: "audit_logs_occurred_at_idx")
+  @@index([actionType], map: "audit_logs_action_type_idx")
+  @@map("audit_logs")
+}
