@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 const dashboardItems = [
   { href: "/dashboard", label: "Analytics", icon: "dashboard" as const },
   { href: "/forms", label: "Forms", icon: "forms" as const },
+  { href: "/responses", label: "Responses", icon: "responses" as const },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

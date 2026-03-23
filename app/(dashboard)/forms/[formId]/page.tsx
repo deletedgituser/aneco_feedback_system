@@ -194,76 +194,127 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
   }
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-6">
       {query.toastType && query.toastMessage ? <FlashToast type={query.toastType} message={query.toastMessage} /> : null}
 
-      <h1 className="text-xl font-semibold text-slate-900">Edit Form</h1>
-
-      <form action={updateFormDetailsAction} className="grid gap-3 rounded-lg border border-slate-200 p-4 md:grid-cols-2">
-        <input
-          name="title"
-          defaultValue={form.title}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          required
-        />
-        <select
-          name="language"
-          defaultValue={form.language === "bis" ? "bis" : "en"}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          required
-        >
-          <option value="en">English (en)</option>
-          <option value="bis">Bisaya (bis)</option>
-        </select>
-        <textarea
-          name="description"
-          defaultValue={form.description ?? ""}
-          className="min-h-20 rounded-md border border-slate-300 px-3 py-2 text-sm md:col-span-2"
-        />
-        <button
-          type="submit"
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700 md:col-span-2"
-        >
-          Save Form Details
-        </button>
-      </form>
-
-      <div className="rounded-lg border border-slate-200 p-4">
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">Questions</h2>
-
-        <form action={addQuestionAction} className="mb-4 flex gap-2">
-          <input
-            name="label"
-            placeholder="Add new smiley question"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-            required
-          />
-          <button
-            type="submit"
-            className="rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+      <header className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-500">Form Management</p>
+            <h1 className="text-2xl font-bold text-slate-900">{form.title}</h1>
+          </div>
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              form.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+            }`}
           >
-            Add
-          </button>
-        </form>
+            {form.isActive ? "Active" : "Inactive"}
+          </span>
+        </div>
+        <p className="mt-2 text-sm text-slate-600">{form.description ?? "No description provided."}</p>
+      </header>
 
-        <ul className="space-y-2">
-          {form.questions.map((question) => (
-            <li key={question.questionId} className="flex items-center justify-between rounded-md border border-slate-200 p-3">
-              <p className="text-sm text-slate-700">
-                {question.displayOrder}. {question.label}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-slate-900">Form Details</h2>
+          <form action={updateFormDetailsAction} className="space-y-3">
+            <div>
+              <label htmlFor="title" className="mb-1 block text-xs font-semibold uppercase text-slate-500">
+                Title
+              </label>
+              <input
+                id="title"
+                name="title"
+                defaultValue={form.title}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="language" className="mb-1 block text-xs font-semibold uppercase text-slate-500">
+                Language
+              </label>
+              <select
+                id="language"
+                name="language"
+                defaultValue={form.language === "bis" ? "bis" : "en"}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                required
+              >
+                <option value="en">English (en)</option>
+                <option value="bis">Bisaya (bis)</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="description" className="mb-1 block text-xs font-semibold uppercase text-slate-500">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                defaultValue={form.description ?? ""}
+                className="h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+            >
+              Save Changes
+            </button>
+          </form>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-slate-900">Questions</h2>
+
+          <form action={addQuestionAction} className="mb-4 flex gap-2">
+            <input
+              name="label"
+              placeholder="Add new smiley question"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              required
+            />
+            <button
+              type="submit"
+              className="rounded-md bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+            >
+              Add
+            </button>
+          </form>
+
+          <div className="space-y-2">
+            {form.questions.length === 0 ? (
+              <p className="rounded-md border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+                No questions yet.
               </p>
-              <form action={deleteQuestionAction}>
-                <input type="hidden" name="questionId" value={question.questionId} />
-                <button
-                  type="submit"
-                  className="rounded-md border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                >
-                  Delete
-                </button>
-              </form>
-            </li>
-          ))}
-        </ul>
+            ) : (
+              <ol className="space-y-2">
+                {form.questions.map((question) => (
+                  <li key={question.questionId} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-sm font-medium text-slate-800">
+                        {question.displayOrder}. {question.label}
+                      </p>
+                      <form action={deleteQuestionAction}>
+                        <input type="hidden" name="questionId" value={question.questionId} />
+                        <button
+                          type="submit"
+                          className="rounded-md border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );

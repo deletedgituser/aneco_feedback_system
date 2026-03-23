@@ -6,41 +6,13 @@ import {
   Chart as ChartJS,
   Legend,
   LinearScale,
-  LineElement,
-  PointElement,
   Title,
   Tooltip,
   BarElement,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-);
-
-function scoreToLabel(score: number): string {
-  switch (score) {
-    case 1:
-      return "Very Dissatisfied";
-    case 2:
-      return "Dissatisfied";
-    case 3:
-      return "Neutral";
-    case 4:
-      return "Satisfied";
-    case 5:
-      return "Very Satisfied";
-    default:
-      return `Score ${score}`;
-  }
-}
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function formatDateLabel(dateText: string): string {
   const parsed = new Date(dateText);
@@ -48,6 +20,24 @@ function formatDateLabel(dateText: string): string {
     return dateText;
   }
   return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+type PerformanceStatus = "positive" | "neutral" | "negative" | "no-data";
+
+function assessPerformance(averageRating: number, totalResponses: number): {
+  status: PerformanceStatus;
+  label: string;
+} {
+  if (totalResponses === 0) {
+    return { status: "no-data", label: "No Data" };
+  }
+  if (averageRating >= 4) {
+    return { status: "positive", label: "Positive" };
+  }
+  if (averageRating <= 2.5) {
+    return { status: "negative", label: "Negative" };
+  }
+  return { status: "neutral", label: "Neutral" };
 }
 
 type FormOption = {
@@ -63,16 +53,14 @@ type AnalyticsChartsProps = {
   perQuestion: Array<{ questionId: number; label: string; averageRating: number; totalResponses: number }>;
 };
 
-export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuestion }: AnalyticsChartsProps) {
+export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps) {
   const [selectedForm, setSelectedForm] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [assistedEmployee, setAssistedEmployee] = useState("");
   const [debouncedEmployee, setDebouncedEmployee] = useState("");
-  const [distributionRows, setDistributionRows] = useState(distribution);
   const [trendRows, setTrendRows] = useState(trend);
   const [perFormRows, setPerFormRows] = useState(perForm);
-  const [perQuestionRows, setPerQuestionRows] = useState(perQuestion);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -95,10 +83,8 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
         Boolean(debouncedEmployee.trim());
 
       if (!hasFilters) {
-        setDistributionRows(distribution);
         setTrendRows(trend);
         setPerFormRows(perForm);
-        setPerQuestionRows(perQuestion);
         setErrorMessage("");
         setLoading(false);
         return;
@@ -106,10 +92,8 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
 
       if (fromDate && toDate && fromDate > toDate) {
         setErrorMessage("The 'From' date must be earlier than or equal to the 'To' date.");
-        setDistributionRows(distribution);
         setTrendRows(trend);
         setPerFormRows(perForm);
-        setPerQuestionRows(perQuestion);
         setLoading(false);
         return;
       }
@@ -141,29 +125,23 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
         }
 
         const payload = (await response.json()) as {
-          distribution?: Array<{ score: number; count: number }>;
           trend?: Array<{ date: string; count: number }>;
           perForm?: Array<{ formId: number; title: string; averageRating: number; totalResponses: number }>;
-          perQuestion?: Array<{ questionId: number; label: string; averageRating: number; totalResponses: number }>;
         };
 
         if (!active) {
           return;
         }
 
-        setDistributionRows(payload.distribution ?? []);
         setTrendRows(payload.trend ?? []);
         setPerFormRows(payload.perForm ?? []);
-        setPerQuestionRows(payload.perQuestion ?? []);
       } catch {
         if (!active) {
           return;
         }
         setErrorMessage("Unable to load filtered analytics. Showing latest available data.");
-        setDistributionRows(distribution);
         setTrendRows(trend);
         setPerFormRows(perForm);
-        setPerQuestionRows(perQuestion);
       } finally {
         if (active) {
           setLoading(false);
@@ -176,35 +154,10 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
     return () => {
       active = false;
     };
-  }, [selectedForm, fromDate, toDate, debouncedEmployee, distribution, trend, perForm, perQuestion]);
+  }, [selectedForm, fromDate, toDate, debouncedEmployee, trend, perForm]);
 
-  const hasDistributionData = distributionRows.some((row) => row.count > 0);
   const hasTrendData = trendRows.some((row) => row.count > 0);
-  const hasPerFormData = perFormRows.length > 0;
-  const hasPerQuestionData = perQuestionRows.length > 0;
-
-  const distributionData = useMemo(
-    () => ({
-      labels: distributionRows.map((row) => scoreToLabel(row.score)),
-      datasets: [
-        {
-          label: "Responses",
-          data: distributionRows.map((row) => row.count),
-          backgroundColor: [
-            "rgba(225, 29, 72, 0.85)",
-            "rgba(249, 115, 22, 0.85)",
-            "rgba(234, 179, 8, 0.85)",
-            "rgba(34, 197, 94, 0.85)",
-            "rgba(6, 182, 212, 0.85)",
-          ],
-          borderColor: "rgba(255,255,255,0.9)",
-          borderWidth: 2,
-          borderRadius: 6,
-        },
-      ],
-    }),
-    [distributionRows],
-  );
+  const hasPerFormData = perFormRows.some((row) => row.totalResponses > 0);
 
   const trendData = useMemo(
     () => ({
@@ -214,8 +167,6 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
           label: "Submissions",
           data: trendRows.map((row) => row.count),
           backgroundColor: "rgba(8, 145, 178, 0.78)",
-          borderColor: "rgba(14, 116, 144, 1)",
-          borderWidth: 1,
           borderRadius: 6,
         },
       ],
@@ -231,8 +182,6 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
           label: "Average Rating",
           data: perFormRows.map((row) => row.averageRating),
           backgroundColor: "rgba(16, 185, 129, 0.75)",
-          borderColor: "rgba(5, 150, 105, 1)",
-          borderWidth: 1,
           borderRadius: 6,
         },
       ],
@@ -240,21 +189,29 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
     [perFormRows],
   );
 
-  const perQuestionData = useMemo(
-    () => ({
-      labels: perQuestionRows.map((row) => row.label.length > 48 ? `${row.label.slice(0, 48)}...` : row.label),
-      datasets: [
-        {
-          label: "Average Rating",
-          data: perQuestionRows.map((row) => row.averageRating),
-          backgroundColor: "rgba(99, 102, 241, 0.75)",
-          borderColor: "rgba(79, 70, 229, 1)",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    }),
-    [perQuestionRows],
+  const formAssessments = useMemo(
+    () =>
+      perFormRows.map((row) => ({
+        ...row,
+        ...assessPerformance(row.averageRating, row.totalResponses),
+      })),
+    [perFormRows],
+  );
+
+  const assessmentSummary = useMemo(() => {
+    const positive = formAssessments.filter((row) => row.status === "positive").length;
+    const neutral = formAssessments.filter((row) => row.status === "neutral").length;
+    const negative = formAssessments.filter((row) => row.status === "negative").length;
+    return { positive, neutral, negative };
+  }, [formAssessments]);
+
+  const lowestPerformingForms = useMemo(
+    () =>
+      formAssessments
+        .filter((row) => row.totalResponses > 0)
+        .sort((a, b) => a.averageRating - b.averageRating)
+        .slice(0, 5),
+    [formAssessments],
   );
 
   const exportBaseQuery = useMemo(() => {
@@ -274,7 +231,7 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
     return params;
   }, [selectedForm, fromDate, toDate, debouncedEmployee]);
 
-  function exportHref(mode: "summary" | "detailed", format: "excel" | "pdf"): string {
+  function exportHref(mode: "summary", format: "excel" | "pdf"): string {
     const params = new URLSearchParams(exportBaseQuery);
     params.set("mode", mode);
     params.set("format", format);
@@ -285,72 +242,72 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
     <section className="space-y-4 rounded-lg border border-slate-200 p-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
-        <div className="space-y-1">
-          <label htmlFor="form-filter" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Form Filter
-          </label>
-          <select
-            id="form-filter"
-            value={selectedForm}
-            onChange={(event) => setSelectedForm(event.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          <div className="space-y-1">
+            <label htmlFor="form-filter" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Form
+            </label>
+            <select
+              id="form-filter"
+              value={selectedForm}
+              onChange={(event) => setSelectedForm(event.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            >
+              <option value="all">All forms</option>
+              {forms.map((form) => (
+                <option key={form.formId} value={String(form.formId)}>
+                  {form.title}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="from-date" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              From
+            </label>
+            <input
+              id="from-date"
+              type="date"
+              value={fromDate}
+              onChange={(event) => setFromDate(event.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="to-date" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              To
+            </label>
+            <input
+              id="to-date"
+              type="date"
+              value={toDate}
+              onChange={(event) => setToDate(event.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="assisted-employee" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Assisted Employee
+            </label>
+            <input
+              id="assisted-employee"
+              value={assistedEmployee}
+              onChange={(event) => setAssistedEmployee(event.target.value)}
+              placeholder="Name"
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedForm("all");
+              setFromDate("");
+              setToDate("");
+              setAssistedEmployee("");
+            }}
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
           >
-            <option value="all">All forms</option>
-            {forms.map((form) => (
-              <option key={form.formId} value={String(form.formId)}>
-                {form.title}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="from-date" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            From
-          </label>
-          <input
-            id="from-date"
-            type="date"
-            value={fromDate}
-            onChange={(event) => setFromDate(event.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="to-date" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            To
-          </label>
-          <input
-            id="to-date"
-            type="date"
-            value={toDate}
-            onChange={(event) => setToDate(event.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="assisted-employee" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Assisted Employee
-          </label>
-          <input
-            id="assisted-employee"
-            value={assistedEmployee}
-            onChange={(event) => setAssistedEmployee(event.target.value)}
-            placeholder="Name"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedForm("all");
-            setFromDate("");
-            setToDate("");
-            setAssistedEmployee("");
-          }}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-        >
-          Reset filters
-        </button>
+            Reset
+          </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -366,18 +323,6 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
           >
             Summary PDF
           </a>
-          <a
-            href={exportHref("detailed", "excel")}
-            className="rounded-md border border-cyan-300 px-3 py-2 text-xs font-semibold text-cyan-700 hover:bg-cyan-50"
-          >
-            Detailed Excel
-          </a>
-          <a
-            href={exportHref("detailed", "pdf")}
-            className="rounded-md border border-cyan-300 px-3 py-2 text-xs font-semibold text-cyan-700 hover:bg-cyan-50"
-          >
-            Detailed PDF
-          </a>
         </div>
       </div>
 
@@ -386,41 +331,7 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-slate-200 p-3">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Rating Mix</h2>
-          {hasDistributionData ? (
-            <div className="h-72">
-              <Bar
-                data={distributionData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        precision: 0,
-                      },
-                    },
-                  },
-                  plugins: {
-                    legend: {
-                      display: false,
-                    },
-                  },
-                  animation: {
-                    duration: 300,
-                  },
-                }}
-              />
-            </div>
-          ) : (
-            <p className="rounded-md border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-              No responses found for the current filters.
-            </p>
-          )}
-        </div>
-        <div className="rounded-lg border border-slate-200 p-3">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Daily Submission Volume</h2>
+          <h2 className="mb-2 text-sm font-semibold text-slate-700">Submission Trend</h2>
           {hasTrendData ? (
             <div className="h-72">
               <Bar
@@ -442,7 +353,7 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
                     },
                   },
                   animation: {
-                    duration: 300,
+                    duration: 250,
                   },
                 }}
               />
@@ -453,13 +364,11 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
             </p>
           )}
         </div>
-      </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-slate-200 p-3">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Per-Form Performance</h2>
+          <h2 className="mb-2 text-sm font-semibold text-slate-700">Form Ratings</h2>
           {hasPerFormData ? (
-            <div className="h-80">
+            <div className="h-72">
               <Bar
                 data={perFormData}
                 options={{
@@ -468,8 +377,8 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
                   scales: {
                     x: {
                       ticks: {
-                        maxRotation: 45,
-                        minRotation: 30,
+                        maxRotation: 40,
+                        minRotation: 20,
                       },
                     },
                     y: {
@@ -487,65 +396,47 @@ export function AnalyticsCharts({ forms, distribution, trend, perForm, perQuesti
                     },
                   },
                   animation: {
-                    duration: 300,
+                    duration: 250,
                   },
                 }}
               />
             </div>
           ) : (
             <p className="rounded-md border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-              No form performance data for the current filters.
-            </p>
-          )}
-        </div>
-        <div className="rounded-lg border border-slate-200 p-3">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Per-Question Performance</h2>
-          {hasPerQuestionData ? (
-            <div className="h-80">
-              <Bar
-                data={perQuestionData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    x: {
-                      ticks: {
-                        maxRotation: 50,
-                        minRotation: 35,
-                      },
-                    },
-                    y: {
-                      beginAtZero: true,
-                      min: 0,
-                      max: 5,
-                      ticks: {
-                        stepSize: 1,
-                      },
-                    },
-                  },
-                  plugins: {
-                    legend: {
-                      display: false,
-                    },
-                  },
-                  animation: {
-                    duration: 300,
-                  },
-                }}
-              />
-            </div>
-          ) : (
-            <p className="rounded-md border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-              No question performance data for the current filters.
+              No form rating data for the current filters.
             </p>
           )}
         </div>
       </div>
 
+      <div className="rounded-lg border border-slate-200 p-3">
+        <h2 className="mb-3 text-sm font-semibold text-slate-700">Form Health Snapshot</h2>
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-700">Positive: {assessmentSummary.positive}</span>
+          <span className="rounded-full bg-amber-100 px-2 py-1 text-amber-700">Neutral: {assessmentSummary.neutral}</span>
+          <span className="rounded-full bg-rose-100 px-2 py-1 text-rose-700">Negative: {assessmentSummary.negative}</span>
+        </div>
+
+        {lowestPerformingForms.length > 0 ? (
+          <ul className="space-y-2">
+            {lowestPerformingForms.map((row) => (
+              <li key={row.formId} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm">
+                <span className="font-medium text-slate-800">{row.title}</span>
+                <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                  {row.averageRating.toFixed(2)} ({row.totalResponses})
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-md border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+            No form assessments available for the current filters.
+          </p>
+        )}
+      </div>
+
       {selectedForm !== "all" || fromDate || toDate || assistedEmployee.trim() ? (
-        <p className="text-xs text-slate-500">
-          Filters applied to analytics charts.
-        </p>
+        <p className="text-xs text-slate-500">Filters applied to analytics.</p>
       ) : null}
     </section>
   );

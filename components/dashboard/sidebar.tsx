@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { ChevronLeft, ChevronRight, ClipboardList, LayoutDashboard, ScrollText, Users } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
 
-type NavIcon = "dashboard" | "forms" | "accounts" | "logs";
+type NavIcon = "dashboard" | "forms" | "responses" | "accounts" | "logs";
 
 const navIconMap: Record<NavIcon, LucideIcon> = {
   dashboard: LayoutDashboard,
   forms: ClipboardList,
+  responses: ScrollText,
   accounts: Users,
   logs: ScrollText,
 };
@@ -39,7 +41,10 @@ export function Sidebar({ title, items, logoutLabel = "Logout" }: SidebarProps) 
       }`}
     >
       <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
-        {!collapsed ? <span className="text-sm font-semibold text-slate-700">{title}</span> : null}
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="ANECO logo" width={24} height={24} className="h-6 w-6 object-contain" priority />
+          {!collapsed ? <span className="text-sm font-semibold text-slate-700">{title}</span> : null}
+        </div>
         <button
           type="button"
           onClick={() => setCollapsed((prev) => !prev)}
@@ -52,25 +57,36 @@ export function Sidebar({ title, items, logoutLabel = "Logout" }: SidebarProps) 
 
       <nav className="flex-1 overflow-y-auto p-3">
         <ul className="space-y-1">
-          {items.map((item) => {
-            const Icon = navIconMap[item.icon];
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
-                    active
-                      ? "bg-cyan-50 text-cyan-700"
-                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  <Icon size={16} className="shrink-0" />
-                  {collapsed ? null : item.label}
-                </Link>
-              </li>
-            );
-          })}
+          {(() => {
+            const bestMatch = items.reduce((best, item) => {
+              const isMatch = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              if (!isMatch) return best;
+              if (item.href.length > best.href.length) {
+                return item;
+              }
+              return best;
+            }, { href: "", label: "", icon: "dashboard" as const });
+
+            return items.map((item) => {
+              const Icon = navIconMap[item.icon];
+              const active = item.href === bestMatch.href;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+                      active
+                        ? "bg-cyan-50 text-cyan-700"
+                        : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                    }`}
+                  >
+                    <Icon size={16} className="shrink-0" />
+                    {collapsed ? null : item.label}
+                  </Link>
+                </li>
+              );
+            });
+          })()}
         </ul>
       </nav>
 
