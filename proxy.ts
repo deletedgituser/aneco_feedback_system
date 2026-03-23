@@ -18,7 +18,12 @@ function decodeSessionToken(token: string): SessionPayload | null {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (!pathname.startsWith("/dashboard") && !pathname.startsWith("/forms") && !pathname.startsWith("/admin")) {
+  if (
+    !pathname.startsWith("/dashboard") &&
+    !pathname.startsWith("/forms") &&
+    !pathname.startsWith("/responses") &&
+    !pathname.startsWith("/admin")
+  ) {
     return NextResponse.next();
   }
 
@@ -40,6 +45,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
+  if (pathname.startsWith("/responses") && payload.role !== "personnel") {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
   if (pathname.startsWith("/admin") && payload.role !== "admin") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -48,5 +57,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/forms/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/forms/:path*", "/responses/:path*", "/admin/:path*"],
 };

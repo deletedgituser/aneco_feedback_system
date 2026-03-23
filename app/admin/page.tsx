@@ -4,6 +4,7 @@ import { getSessionPayload } from "@/lib/auth/session";
 import { hashPassword, validatePasswordComplexity, verifyPassword } from "@/lib/auth/password";
 import { redirect } from "next/navigation";
 import { FlashToast } from "@/components/ui/flash-toast";
+import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
 
 function buildStrongTemporaryPassword() {
   const random = Math.floor(1000 + Math.random() * 9000);
@@ -126,6 +127,46 @@ export default async function AdminAccountsPage({
     });
 
     redirectWithToast("success", nextStatus ? "Personnel account activated." : "Personnel account deactivated.");
+  }
+
+  async function deletePersonnelAction(formData: FormData) {
+    "use server";
+
+    const session = await getSessionPayload();
+    if (!session?.adminId) {
+      redirectWithToast("error", "Unauthorized action.");
+    }
+
+    const personnelId = Number(formData.get("personnelId"));
+    if (!Number.isInteger(personnelId) || personnelId <= 0) {
+      redirectWithToast("error", "Invalid personnel account.");
+    }
+
+    const target = await prisma.personnel.findUnique({
+      where: { personnelId },
+      select: { personnelId: true },
+    });
+
+    if (!target) {
+      redirectWithToast("error", "Personnel account not found.");
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.passwordHistory.deleteMany({ where: { personnelId } });
+      await tx.session.deleteMany({ where: { personnelId } });
+      await tx.form.updateMany({ where: { createdByPersonnelId: personnelId }, data: { createdByPersonnelId: null } });
+      await tx.personnel.delete({ where: { personnelId } });
+    });
+
+    await logAuditEvent({
+      actorRole: "admin",
+      actorId: session.adminId,
+      actionType: "personnel.delete",
+      targetType: "personnel",
+      targetId: personnelId,
+    });
+
+    redirectWithToast("success", "Personnel account deleted successfully.");
   }
 
   async function resetPersonnelPasswordAction(formData: FormData) {
@@ -282,6 +323,10 @@ export default async function AdminAccountsPage({
                       >
                         Reset Password
                       </button>
+                    </form>
+                    <form action={deletePersonnelAction}>
+                      <input type="hidden" name="personnelId" value={user.personnelId} />
+                      <ConfirmDeleteButton formId={user.personnelId}>Delete</ConfirmDeleteButton>
                     </form>
                   </div>
                 </td>

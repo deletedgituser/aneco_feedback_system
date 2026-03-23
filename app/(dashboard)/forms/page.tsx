@@ -202,35 +202,56 @@ export default async function FormsPage({
       </div>
 
       {showAddForm ? (
-        <form action={createFormAction} className="mb-5 grid gap-3 rounded-lg border border-slate-200 p-4 md:grid-cols-2">
-          <input
-            name="title"
-            placeholder="Form title"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-            required
-          />
-          <select name="language" defaultValue="en" className="rounded-md border border-slate-300 px-3 py-2 text-sm" required>
-            <option value="en">English (en)</option>
-            <option value="bis">Bisaya (bis)</option>
-          </select>
-          <textarea
-            name="description"
-            placeholder="Description"
-            className="min-h-20 rounded-md border border-slate-300 px-3 py-2 text-sm md:col-span-2"
-          />
-          <input
-            name="firstQuestion"
-            placeholder="First smiley question"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm md:col-span-2"
-            required
-          />
-          <button
-            type="submit"
-            className="rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-500 md:col-span-2"
-          >
-            Create Form
-          </button>
-        </form>
+        <section className="mb-5 rounded-lg border border-cyan-200 bg-cyan-50 p-5 shadow-sm">
+          <h2 className="mb-3 text-lg font-semibold text-slate-900">Add New Form</h2>
+          <form action={createFormAction} className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2">
+              <input
+                name="title"
+                placeholder="Form title"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                required
+              />
+              <select
+                name="language"
+                defaultValue="en"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                required
+              >
+                <option value="en">English (en)</option>
+                <option value="bis">Bisaya (bis)</option>
+              </select>
+            </div>
+
+            <textarea
+              name="description"
+              placeholder="Form description"
+              className="h-24 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+
+            <input
+              name="firstQuestion"
+              placeholder="First smiley question"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              required
+            />
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="submit"
+                className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+              >
+                Create Form
+              </button>
+              <Link
+                href="/forms"
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </section>
       ) : null}
 
       <div className="grid gap-3">
@@ -254,7 +275,10 @@ export default async function FormsPage({
               >
                 {form.isActive ? "Active" : "Inactive"}
               </span>
-              <Link href={`/kiosk/forms/${form.formId}`} className="text-cyan-700 hover:text-cyan-600">
+              <Link
+                href={`/kiosk/forms/${form.formId}?returnUrl=${encodeURIComponent("/forms")}`}
+                className="text-cyan-700 hover:text-cyan-600"
+              >
                 Open kiosk form
               </Link>
               <Link href={`/forms/${form.formId}`} className="text-slate-700 hover:text-slate-900">

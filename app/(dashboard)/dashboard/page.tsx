@@ -68,7 +68,6 @@ async function getChartData() {
       isActive: true,
     },
     orderBy: { createdAt: "desc" },
-    take: 12,
   });
 
   const feedbackToForm = new Map<number, number>();
@@ -76,16 +75,13 @@ async function getChartData() {
     feedbackToForm.set(row.feedbackId, row.formId);
   }
 
-  const formTitleById = new Map<number, string>(forms.map((form) => [form.formId, form.title]));
-
-  const perFormMap = new Map<number, { title: string; totalResponses: number; sum: number }>();
+  const perFormMap = new Map<number, { totalResponses: number; sum: number }>();
   for (const row of responseRows) {
     const formIdOfFeedback = feedbackToForm.get(row.feedbackId);
     if (!formIdOfFeedback) {
       continue;
     }
     const current = perFormMap.get(formIdOfFeedback) ?? {
-      title: formTitleById.get(formIdOfFeedback) ?? `Form #${formIdOfFeedback}`,
       totalResponses: 0,
       sum: 0,
     };
@@ -94,15 +90,21 @@ async function getChartData() {
     perFormMap.set(formIdOfFeedback, current);
   }
 
-  const perForm = Array.from(perFormMap.entries())
-    .map(([formIdOfFeedback, value]) => ({
-      formId: formIdOfFeedback,
-      title: value.title,
-      totalResponses: value.totalResponses,
-      averageRating: Number((value.sum / value.totalResponses).toFixed(2)),
-    }))
+  const perForm = forms
+    .map((form) => {
+      const aggregate = perFormMap.get(form.formId);
+      const totalResponses = aggregate?.totalResponses ?? 0;
+      const averageRating = totalResponses > 0 ? Number(((aggregate?.sum ?? 0) / totalResponses).toFixed(2)) : 0;
+
+      return {
+        formId: form.formId,
+        title: form.title,
+        totalResponses,
+        averageRating,
+      };
+    })
     .sort((a, b) => b.averageRating - a.averageRating)
-    .slice(0, 10);
+    ;
 
   const perQuestionMap = new Map<number, { label: string; totalResponses: number; sum: number }>();
   for (const row of responseRows) {

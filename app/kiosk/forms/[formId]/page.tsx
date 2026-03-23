@@ -1,4 +1,6 @@
 import { notFound, redirect } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { logAuditEvent } from "@/lib/audit";
 
@@ -20,7 +22,7 @@ export default async function KioskFormPage({
   searchParams,
 }: {
   params: Promise<{ formId: string }>;
-  searchParams: Promise<{ userName?: string; assistedEmployee?: string }>;
+  searchParams: Promise<{ userName?: string; assistedEmployee?: string; returnUrl?: string }>;
 }) {
   const { formId } = await params;
   const query = await searchParams;
@@ -44,6 +46,7 @@ export default async function KioskFormPage({
   }
 
   const activeForm = form;
+  const returnUrl = query.returnUrl ? String(query.returnUrl) : "/kiosk";
   const isBisaya = activeForm.language.toLowerCase() === "bis";
   const text = {
     ratingGuideTitle: isBisaya ? "Giya sa rating" : "Rating guide",
@@ -115,6 +118,22 @@ export default async function KioskFormPage({
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-5 sm:py-7">
       <header className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="mb-2">
+          <Link
+            href={returnUrl}
+            className="inline-flex rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Back
+          </Link>
+        </div>
+        <Image
+          src="/logo.png"
+          alt="ANECO logo"
+          width={48}
+          height={48}
+          className="mb-3 h-12 w-12 rounded-md object-contain"
+          priority
+        />
         <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{activeForm.title}</h1>
         <p className="mt-1 text-sm text-slate-600">{activeForm.description}</p>
         <div className="mt-3 rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs text-cyan-950">
