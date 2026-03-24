@@ -40,19 +40,19 @@ export function Sidebar({ title, items, logoutLabel = "Logout", userInfo }: Side
 
   return (
     <aside
-      className={`sticky top-0 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ${
+      className={`sticky top-0 flex h-screen shrink-0 flex-col border-r border-border-default bg-surface transition-all duration-300 ${
         collapsed ? "w-16" : "w-64"
       }`}
     >
-      <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-border-default px-4">
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="ANECO logo" width={30} height={30} className="h-8 w-8 object-contain" priority />
-          {!collapsed ? <span className="text-sm font-semibold text-slate-700">{title}</span> : null}
+          {!collapsed ? <span className="text-sm font-semibold text-text-default">{title}</span> : null}
         </div>
         <button
           type="button"
           onClick={() => setCollapsed((prev) => !prev)}
-          className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+          className="rounded-md border border-border-default px-2 py-1 text-xs font-medium text-text-default hover:bg-brand-secondary"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -80,8 +80,8 @@ export function Sidebar({ title, items, logoutLabel = "Logout", userInfo }: Side
                     href={item.href}
                     className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
                       active
-                        ? "bg-cyan-50 text-cyan-700"
-                        : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                        ? "bg-brand-secondary text-text-default"
+                        : "text-text-default hover:bg-brand-primary-soft hover:text-text-default"
                     }`}
                   >
                     <Icon size={16} className="shrink-0" />
@@ -94,7 +94,7 @@ export function Sidebar({ title, items, logoutLabel = "Logout", userInfo }: Side
         </ul>
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
+      <div className="border-t border-border-default p-3">
         <LogoutButton
           label={logoutLabel}
           iconOnly={collapsed}

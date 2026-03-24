@@ -38,7 +38,16 @@ export default async function KioskFormPage({
     notFound();
   }
 
-  const activeForm = form;
+  const activeForm = {
+    formId: form.formId,
+    title: form.title,
+    description: form.description,
+    language: form.language,
+    questions: form.questions.map((question) => ({
+      questionId: question.questionId,
+      label: question.label,
+    })),
+  };
   const returnUrl = query.returnUrl ? String(query.returnUrl) : "/kiosk";
   const isBisaya = activeForm.language.toLowerCase() === "bis";
   const text = {
@@ -115,11 +124,11 @@ export default async function KioskFormPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-5 sm:py-7">
-      <header className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      <header className="rounded-xl border border-border-default bg-surface p-3 shadow-sm sm:p-4">
         <div className="mb-2 flex items-center justify-between gap-3">
           <Link
             href={returnUrl}
-            className="inline-flex rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            className="inline-flex rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-text-default hover:bg-brand-secondary"
           >
             Back
           </Link>
@@ -134,10 +143,10 @@ export default async function KioskFormPage({
           />
         </div>
         <div className="mb-1 flex items-center justify-between">
-          <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">{activeForm.title}</h1>
+          <h1 className="text-lg font-bold tracking-tight text-text-default sm:text-xl">{activeForm.title}</h1>
         </div>
-        <p className="text-sm text-slate-600">{activeForm.description}</p>
-        <div className="mt-3 rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs text-cyan-950">
+        <p className="text-sm text-text-muted">{activeForm.description}</p>
+        <div className="mt-3 rounded-lg border border-border-default bg-brand-primary-soft px-3 py-2 text-xs text-text-default">
           <p className="font-semibold">{text.ratingGuideTitle}</p>
           <p className="mt-0.5">{text.ratingGuideBody}</p>
         </div>

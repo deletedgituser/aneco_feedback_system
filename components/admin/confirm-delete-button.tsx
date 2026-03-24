@@ -30,15 +30,15 @@ export function ConfirmDeleteButton({ formId, children }: ConfirmDeleteButtonPro
       </button>
 
       {confirmOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-          <div className="max-w-sm rounded-xl border border-slate-200 bg-white p-5 shadow-lg">
-            <h3 className="mb-2 text-lg font-semibold text-slate-900">Confirm Delete</h3>
-            <p className="mb-4 text-sm text-slate-700">Are you sure you want to delete? This action cannot be undone.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-dark/30 p-4">
+          <div className="max-w-sm rounded-xl border border-border-default bg-surface p-5 shadow-lg">
+            <h3 className="mb-2 text-lg font-semibold text-text-default">Confirm Delete</h3>
+            <p className="mb-4 text-sm text-text-muted">Are you sure you want to delete? This action cannot be undone.</p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                className="rounded-md border border-border-default px-3 py-1.5 text-xs font-semibold text-text-default hover:bg-brand-secondary"
               >
                 Cancel
               </button>

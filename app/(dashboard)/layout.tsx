@@ -45,21 +45,21 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar title="Personnel Panel" items={dashboardItems} logoutLabel="Logout" userInfo={userInfo} />
       <section className="h-screen flex-1 overflow-y-auto pt-2 pb-4 px-4 md:pt-3 md:pb-5 md:px-5">
         {toastType && toastMessage ? <FlashToast type={toastType} message={toastMessage} /> : null}
         <div className="mb-2 flex items-center justify-end gap-1">
           {userInfo ? (
-            <div className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700">
+            <div className="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-brand-primary-soft px-3 py-1.5 text-sm font-medium text-text-default">
               <User size={18} />
               <span>{userInfo.role === "admin" ? "Admin" : "Personnel"}</span>
-              <span className="text-slate-500">{userInfo.displayName}</span>
+              <span className="text-text-muted">{userInfo.displayName}</span>
             </div>
           ) : null}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+        <div className="rounded-xl border border-border-default bg-surface p-4 shadow-sm md:p-6">
           <div className="flex items-center gap-3">
             <Breadcrumbs />
           </div>

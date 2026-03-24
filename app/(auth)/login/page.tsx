@@ -21,12 +21,12 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-10">
-      <section className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="w-full rounded-xl border border-border-default bg-surface p-6 shadow-sm">
         <div className="mb-5 flex items-center gap-3">
           <Image src="/logo.png" alt="ANECO logo" width={40} height={40} className="rounded-full" />
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">ANECO Survey System</h1>
-            <p className="text-xs text-slate-500">Secure access for admin and personnel</p>
+            <h1 className="text-2xl font-semibold text-text-default">ANECO Survey System</h1>
+            <p className="text-xs text-text-muted">Secure access for admin and personnel</p>
           </div>
         </div>
         {query.toastType && query.toastMessage ? (
@@ -34,7 +34,7 @@ export default async function LoginPage({
             <FlashToast type={query.toastType} message={query.toastMessage} />
           </div>
         ) : null}
-        <p className="mt-1 text-sm text-slate-600">Shared login for admin and personnel accounts.</p>
+        <p className="mt-1 text-sm text-text-muted">Shared login for admin and personnel accounts.</p>
         <div className="mt-6">
           <LoginForm />
         </div>

@@ -144,26 +144,26 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Analytics Snapshot</h1>
+        <h1 className="text-xl font-semibold text-text-default">Analytics Snapshot</h1>
         <Link
           href="/forms"
-          className="rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+          className="rounded-md bg-brand-primary-strong px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
         >
           Manage Forms
         </Link>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <article className="rounded-lg border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">Total submissions</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{summary.totalSubmissions}</p>
+        <article className="rounded-lg border border-border-default bg-surface p-4">
+          <p className="text-sm text-text-muted">Total submissions</p>
+          <p className="mt-1 text-2xl font-semibold text-text-default">{summary.totalSubmissions}</p>
         </article>
-        <article className="rounded-lg border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">Average rating</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{summary.averageRating}</p>
+        <article className="rounded-lg border border-border-default bg-surface p-4">
+          <p className="text-sm text-text-muted">Average rating</p>
+          <p className="mt-1 text-2xl font-semibold text-text-default">{summary.averageRating}</p>
         </article>
-        <article className="rounded-lg border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">Active forms</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{summary.totalForms}</p>
+        <article className="rounded-lg border border-border-default bg-surface p-4">
+          <p className="text-sm text-text-muted">Active forms</p>
+          <p className="mt-1 text-2xl font-semibold text-text-default">{summary.totalForms}</p>
         </article>
       </div>
 
@@ -175,17 +175,17 @@ export default async function DashboardPage() {
         perQuestion={chartData.perQuestion}
       />
 
-      <section className="rounded-lg border border-slate-200 p-4">
+      <section className="rounded-lg border border-border-default bg-surface p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">Personnel Forms</h2>
-          <Link href="/forms" className="text-sm font-semibold text-cyan-700 hover:text-cyan-600">
+          <h2 className="text-sm font-semibold text-text-default">Personnel Forms</h2>
+          <Link href="/forms" className="text-sm font-semibold text-brand-primary-strong hover:text-brand-primary">
             Open forms page
           </Link>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {chartData.forms.map((form: { formId: number; title: string; isActive: boolean }) => (
-            <article key={form.formId} className="rounded-md border border-slate-200 p-3">
-              <p className="text-sm font-semibold text-slate-800">{form.title}</p>
+            <article key={form.formId} className="rounded-md border border-border-default bg-surface p-3">
+              <p className="text-sm font-semibold text-text-default">{form.title}</p>
               <div className="mt-2 flex items-center justify-between">
                 <span
                   className={`rounded-full px-2 py-1 text-xs font-semibold ${
@@ -194,14 +194,14 @@ export default async function DashboardPage() {
                 >
                   {form.isActive ? "Active" : "Inactive"}
                 </span>
-                <Link href={`/forms/${form.formId}`} className="text-xs font-semibold text-slate-700 hover:text-slate-900">
+                <Link href={`/forms/${form.formId}`} className="text-xs font-semibold text-text-default hover:text-brand-primary-strong">
                   Edit
                 </Link>
               </div>
             </article>
           ))}
           {chartData.forms.length === 0 ? (
-            <p className="rounded-md border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+            <p className="rounded-md border border-dashed border-border-default p-4 text-sm text-text-muted">
               No forms yet. Create your first form in the forms page.
             </p>
           ) : null}

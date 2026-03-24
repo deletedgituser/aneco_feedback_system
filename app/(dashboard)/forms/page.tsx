@@ -7,16 +7,38 @@ import { redirect } from "next/navigation";
 import { FlashToast } from "@/components/ui/flash-toast";
 import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
 
+type StatusFilter = "all" | "active" | "inactive";
+
+function parseStatusFilter(value: string | undefined): StatusFilter {
+  if (value === "active" || value === "inactive") {
+    return value;
+  }
+  return "all";
+}
+
 export default async function FormsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ toastType?: "success" | "error"; toastMessage?: string; mode?: string }>;
+  searchParams: Promise<{ toastType?: "success" | "error"; toastMessage?: string; mode?: string; status?: string }>;
 }) {
   const query = await searchParams;
   const showAddForm = query.mode === "add";
+  const statusFilter = parseStatusFilter(query.status);
+
+  function buildFormsHref(nextStatus: StatusFilter, mode?: "add"): string {
+    const params = new URLSearchParams();
+    if (nextStatus !== "all") {
+      params.set("status", nextStatus);
+    }
+    if (mode === "add") {
+      params.set("mode", "add");
+    }
+    return `/forms${params.toString() ? `?${params.toString()}` : ""}`;
+  }
 
   const forms = await prisma.form.findMany({
-    orderBy: { createdAt: "desc" },
+    where: statusFilter === "all" ? undefined : { isActive: statusFilter === "active" },
+    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
     take: 20,
   });
 
@@ -183,40 +205,72 @@ export default async function FormsPage({
     <section>
       {query.toastType && query.toastMessage ? <FlashToast type={query.toastType} message={query.toastMessage} /> : null}
 
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Feedback Forms</h1>
-        {showAddForm ? (
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold text-text-default">Feedback Forms</h1>
+        <div className="flex flex-wrap items-center gap-2">
           <Link
-            href="/forms"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            href={buildFormsHref("all")}
+            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+              statusFilter === "all"
+                ? "border-border-default bg-brand-secondary text-text-default"
+                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+            }`}
           >
-            Cancel
+            All
           </Link>
-        ) : (
           <Link
-            href="/forms?mode=add"
-            className="rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+            href={buildFormsHref("active")}
+            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+              statusFilter === "active"
+                ? "border-border-default bg-brand-secondary text-text-default"
+                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+            }`}
           >
-            Add Form
+            Active
           </Link>
-        )}
+          <Link
+            href={buildFormsHref("inactive")}
+            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+              statusFilter === "inactive"
+                ? "border-border-default bg-brand-secondary text-text-default"
+                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+            }`}
+          >
+            Inactive
+          </Link>
+          {showAddForm ? (
+            <Link
+              href={buildFormsHref(statusFilter)}
+              className="rounded-md border border-border-default px-3 py-2 text-sm font-semibold text-text-default hover:bg-brand-secondary"
+            >
+              Cancel
+            </Link>
+          ) : (
+            <Link
+              href={buildFormsHref(statusFilter, "add")}
+              className="rounded-md bg-brand-primary-strong px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
+            >
+              Add Form
+            </Link>
+          )}
+        </div>
       </div>
 
       {showAddForm ? (
-        <section className="mb-5 rounded-lg border border-cyan-200 bg-cyan-50 p-5 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold text-slate-900">Add New Form</h2>
+        <section className="mb-5 rounded-lg border border-border-default bg-brand-primary-soft p-5 shadow-sm">
+          <h2 className="mb-3 text-lg font-semibold text-text-default">Add New Form</h2>
           <form action={createFormAction} className="space-y-3">
             <div className="grid gap-3 md:grid-cols-2">
               <input
                 name="title"
                 placeholder="Form title"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                className="rounded-lg border border-border-default bg-surface px-3 py-2 text-sm"
                 required
               />
               <select
                 name="language"
                 defaultValue="en"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                className="rounded-lg border border-border-default bg-surface px-3 py-2 text-sm"
                 required
               >
                 <option value="en">English (en)</option>
@@ -227,26 +281,26 @@ export default async function FormsPage({
             <textarea
               name="description"
               placeholder="Form description"
-              className="h-24 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="h-24 w-full rounded-lg border border-border-default bg-surface px-3 py-2 text-sm"
             />
 
             <input
               name="firstQuestion"
               placeholder="First smiley question"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border-default bg-surface px-3 py-2 text-sm"
               required
             />
 
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="submit"
-                className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+                className="rounded-lg bg-brand-primary-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
               >
                 Create Form
               </button>
               <Link
                 href="/forms"
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                className="rounded-lg border border-border-default px-4 py-2 text-sm font-semibold text-text-default hover:bg-brand-secondary"
               >
                 Cancel
               </Link>
@@ -264,12 +318,17 @@ export default async function FormsPage({
             language: string;
             isActive: boolean;
           }) => (
-          <article key={form.formId} className="flex h-full flex-col rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="font-semibold text-slate-900">{form.title}</h2>
-            <p className="mt-1 flex-grow text-sm text-slate-600">{form.description ?? "No description"}</p>
+            <article
+              key={form.formId}
+              className={`flex h-full flex-col rounded-lg border border-border-default p-4 ${
+                form.isActive ? "bg-surface" : "bg-surface-muted"
+              }`}
+            >
+              <h2 className="font-semibold text-text-default">{form.title}</h2>
+              <p className="mt-1 flex-grow text-sm text-text-muted">{form.description ?? "No description"}</p>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{form.language}</span>
+                <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold text-text-muted">{form.language}</span>
               <span
                 className={`rounded-full px-2 py-1 text-xs font-semibold ${
                   form.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
@@ -282,11 +341,11 @@ export default async function FormsPage({
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 href={`/kiosk/forms/${form.formId}?returnUrl=${encodeURIComponent("/forms")}`}
-                className="rounded-md border border-cyan-300 px-3 py-2 text-xs font-semibold text-cyan-700 hover:bg-cyan-50"
+                className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
               >
                 Open kiosk form
               </Link>
-              <Link href={`/forms/${form.formId}`} className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+              <Link href={`/forms/${form.formId}`} className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary">
                 Edit form
               </Link>
               <form action={toggleFormStatusAction}>
@@ -294,7 +353,7 @@ export default async function FormsPage({
                 <input type="hidden" name="nextStatus" value={String(!form.isActive)} />
                 <button
                   type="submit"
-                  className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
                 >
                   {form.isActive ? "Deactivate" : "Activate"}
                 </button>
@@ -308,7 +367,7 @@ export default async function FormsPage({
         ),
         )}
         {forms.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 p-6 text-sm text-slate-500">
+          <p className="rounded-lg border border-dashed border-border-default p-6 text-sm text-text-muted">
             No forms found. Create the first rating form.
           </p>
         ) : null}

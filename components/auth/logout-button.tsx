@@ -33,7 +33,7 @@ export function LogoutButton({ label = "Logout", className = "", iconOnly = fals
       onClick={onLogout}
       disabled={loading}
       aria-label={loading ? "Signing out" : label}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 ${className}`}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-md border border-border-default bg-surface px-3 py-2 text-sm font-semibold text-text-default transition hover:bg-brand-secondary disabled:cursor-not-allowed disabled:opacity-70 ${className}`}
     >
       <LogOut size={16} />
       {iconOnly ? null : loading ? "Signing out..." : label}
