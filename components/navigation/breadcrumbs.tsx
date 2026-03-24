@@ -62,7 +62,7 @@ export function Breadcrumbs() {
   const mode = searchParams?.get("mode");
 
   return (
-    <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
+    <nav aria-label="Breadcrumb" className="text-sm text-text-muted">
       <ol className="flex items-center gap-2">
         {segments.map((segment, index) => {
           const href = `/${segments.slice(0, index + 1).join("/")}`;
@@ -75,9 +75,9 @@ export function Breadcrumbs() {
             <li key={href} className="flex items-center gap-2">
               {index > 0 ? <span>/</span> : null}
               {isLast ? (
-                <span className="font-medium text-slate-700">{label}</span>
+                <span className="font-medium text-text-default">{label}</span>
               ) : (
-                <Link href={href} className="hover:text-slate-800">
+                <Link href={href} className="hover:text-brand-primary-strong">
                   {label}
                 </Link>
               )}
@@ -87,7 +87,7 @@ export function Breadcrumbs() {
         {mode === "add" ? (
           <li className="flex items-center gap-2">
             <span>/</span>
-            <span className="font-medium text-slate-700">Add Form</span>
+            <span className="font-medium text-text-default">Add Form</span>
           </li>
         ) : null}
       </ol>

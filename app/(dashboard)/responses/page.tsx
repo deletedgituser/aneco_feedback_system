@@ -1,9 +1,34 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export default async function ResponsesPage() {
+type StatusFilter = "all" | "active" | "inactive";
+
+function parseStatusFilter(value: string | undefined): StatusFilter {
+  if (value === "active" || value === "inactive") {
+    return value;
+  }
+  return "all";
+}
+
+export default async function ResponsesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const query = await searchParams;
+  const statusFilter = parseStatusFilter(query.status);
+
+  function buildResponsesHref(nextStatus: StatusFilter): string {
+    const params = new URLSearchParams();
+    if (nextStatus !== "all") {
+      params.set("status", nextStatus);
+    }
+    return `/responses${params.toString() ? `?${params.toString()}` : ""}`;
+  }
+
   const forms = await prisma.form.findMany({
-    orderBy: { createdAt: "desc" },
+    where: statusFilter === "all" ? undefined : { isActive: statusFilter === "active" },
+    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
     select: {
       formId: true,
       title: true,
@@ -19,15 +44,52 @@ export default async function ResponsesPage() {
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Form Responses</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold text-text-default">Form Responses</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={buildResponsesHref("all")}
+            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+              statusFilter === "all"
+                ? "border-border-default bg-brand-secondary text-text-default"
+                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+            }`}
+          >
+            All
+          </Link>
+          <Link
+            href={buildResponsesHref("active")}
+            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+              statusFilter === "active"
+                ? "border-border-default bg-brand-secondary text-text-default"
+                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+            }`}
+          >
+            Active
+          </Link>
+          <Link
+            href={buildResponsesHref("inactive")}
+            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+              statusFilter === "inactive"
+                ? "border-border-default bg-brand-secondary text-text-default"
+                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+            }`}
+          >
+            Inactive
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         {forms.map((form) => (
-          <article key={form.formId} className="flex h-full flex-col rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="font-semibold text-slate-900">{form.title}</h2>
-            <p className="mt-1 flex-grow text-sm text-slate-600">{form.description ?? "No description"}</p>
+          <article
+            key={form.formId}
+            className={`flex h-full flex-col rounded-lg border border-border-default p-4 ${
+              form.isActive ? "bg-surface" : "bg-surface-muted"
+            }`}
+          >
+            <h2 className="font-semibold text-text-default">{form.title}</h2>
+            <p className="mt-1 flex-grow text-sm text-text-muted">{form.description ?? "No description"}</p>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
               <span
@@ -37,7 +99,7 @@ export default async function ResponsesPage() {
               >
                 {form.isActive ? "Active" : "Inactive"}
               </span>
-              <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+              <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold text-text-default">
                 {form._count.feedbacks} submissions
               </span>
             </div>
@@ -45,7 +107,7 @@ export default async function ResponsesPage() {
             <div className="mt-4">
               <Link
                 href={`/responses/${form.formId}`}
-                className="inline-flex rounded-md border border-cyan-300 px-3 py-2 text-sm font-semibold text-cyan-700 hover:bg-cyan-50"
+                className="inline-flex rounded-md border border-border-default px-3 py-2 text-sm font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
               >
                 Open Form Responses
               </Link>
@@ -54,7 +116,7 @@ export default async function ResponsesPage() {
         ))}
 
         {forms.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 p-6 text-sm text-slate-500 md:col-span-2">
+          <p className="rounded-lg border border-dashed border-border-default p-6 text-sm text-text-muted md:col-span-2">
             No forms found yet.
           </p>
         ) : null}

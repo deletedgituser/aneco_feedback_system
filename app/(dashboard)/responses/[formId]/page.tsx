@@ -223,65 +223,65 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
 
   return (
     <section className="space-y-4">
-      <header className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <h1 className="text-xl font-semibold text-slate-900">{form.title}</h1>
-        <p className="mt-1 text-sm text-slate-600">{form.description ?? "No description"}</p>
-        <div className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+      <header className="rounded-xl border border-border-default bg-surface-muted p-4">
+        <h1 className="text-xl font-semibold text-text-default">{form.title}</h1>
+        <p className="mt-1 text-sm text-text-muted">{form.description ?? "No description"}</p>
+        <div className="mt-3 inline-flex rounded-full bg-surface px-3 py-1 text-xs font-semibold text-text-default ring-1 ring-border-default">
           {totalSubmissions} matching submissions
         </div>
       </header>
 
-      <section className="grid gap-3 rounded-xl border border-slate-200 p-4 md:grid-cols-2 lg:grid-cols-4">
-        <article className="rounded-lg border border-slate-200 bg-white p-3">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Total Submissions</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{totalSubmissions}</p>
+      <section className="grid gap-3 rounded-xl border border-border-default bg-surface p-4 md:grid-cols-2 lg:grid-cols-4">
+        <article className="rounded-lg border border-border-default bg-surface p-3">
+          <p className="text-xs uppercase tracking-wide text-text-muted">Total Submissions</p>
+          <p className="mt-1 text-xl font-semibold text-text-default">{totalSubmissions}</p>
         </article>
-        <article className="rounded-lg border border-slate-200 bg-white p-3">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Average Rating</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{averageRating}</p>
+        <article className="rounded-lg border border-border-default bg-surface p-3">
+          <p className="text-xs uppercase tracking-wide text-text-muted">Average Rating</p>
+          <p className="mt-1 text-xl font-semibold text-text-default">{averageRating}</p>
         </article>
-        <article className="rounded-lg border border-slate-200 bg-white p-3">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Response Items</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{totalResponseItems}</p>
+        <article className="rounded-lg border border-border-default bg-surface p-3">
+          <p className="text-xs uppercase tracking-wide text-text-muted">Response Items</p>
+          <p className="mt-1 text-xl font-semibold text-text-default">{totalResponseItems}</p>
         </article>
-        <article className="rounded-lg border border-slate-200 bg-white p-3">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Latest Order</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">Newest First</p>
+        <article className="rounded-lg border border-border-default bg-surface p-3">
+          <p className="text-xs uppercase tracking-wide text-text-muted">Latest Order</p>
+          <p className="mt-1 text-xl font-semibold text-text-default">Newest First</p>
         </article>
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">
-        <article className="rounded-xl border border-slate-200 p-4">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Rating Distribution</h2>
+        <article className="rounded-xl border border-border-default bg-surface p-4">
+          <h2 className="mb-2 text-sm font-semibold text-text-default">Rating Distribution</h2>
           <ul className="space-y-2">
             {ratingDistribution.map((row) => (
-              <li key={row.score} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm">
-                <span className="font-medium text-slate-800">{scoreLabel(row.score)}</span>
-                <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+              <li key={row.score} className="flex items-center justify-between rounded-md bg-surface-muted px-3 py-2 text-sm">
+                <span className="font-medium text-text-default">{scoreLabel(row.score)}</span>
+                <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border-default">
                   {row.count}
                 </span>
               </li>
             ))}
           </ul>
         </article>
-        <article className="rounded-xl border border-slate-200 p-4">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Per-Question Performance</h2>
+        <article className="rounded-xl border border-border-default bg-surface p-4">
+          <h2 className="mb-2 text-sm font-semibold text-text-default">Per-Question Performance</h2>
           <div className="space-y-2">
             {questionAnalytics.map((question) => (
-              <div key={question.questionId} className="rounded-md bg-slate-50 p-3">
-                <p className="text-sm font-medium text-slate-900">{question.label}</p>
+              <div key={question.questionId} className="rounded-md bg-surface-muted p-3">
+                <p className="text-sm font-medium text-text-default">{question.label}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full bg-white px-2 py-1 font-semibold text-slate-700 ring-1 ring-slate-200">
+                  <span className="rounded-full bg-surface px-2 py-1 font-semibold text-text-default ring-1 ring-border-default">
                     Avg: {question.averageRating.toFixed(2)}
                   </span>
-                  <span className="rounded-full bg-white px-2 py-1 font-semibold text-slate-700 ring-1 ring-slate-200">
+                  <span className="rounded-full bg-surface px-2 py-1 font-semibold text-text-default ring-1 ring-border-default">
                     Responses: {question.totalResponses}
                   </span>
                 </div>
               </div>
             ))}
             {questionAnalytics.length === 0 ? (
-              <p className="rounded-md border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+              <p className="rounded-md border border-dashed border-border-default p-4 text-sm text-text-muted">
                 No questions found for this form.
               </p>
             ) : null}
@@ -289,11 +289,11 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
         </article>
       </section>
 
-      <section className="rounded-xl border border-slate-200 p-4">
-        <h2 className="text-sm font-semibold text-slate-700">Filters</h2>
+      <section className="rounded-xl border border-border-default bg-surface p-4">
+        <h2 className="text-sm font-semibold text-text-default">Filters</h2>
         <form className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-1">
-            <label htmlFor="from" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="from" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               From
             </label>
             <input
@@ -301,11 +301,11 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
               name="from"
               type="date"
               defaultValue={fromDateText}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="to" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="to" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               To
             </label>
             <input
@@ -313,11 +313,11 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
               name="to"
               type="date"
               defaultValue={toDateText}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="respondent" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="respondent" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               Respondent
             </label>
             <input
@@ -325,11 +325,11 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
               name="respondent"
               defaultValue={respondent}
               placeholder="Name"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="assistedEmployee" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="assistedEmployee" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               Assisted Employee
             </label>
             <input
@@ -337,19 +337,19 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
               name="assistedEmployee"
               defaultValue={assistedEmployee}
               placeholder="Name"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
             />
           </div>
           <div className="flex items-end gap-2">
             <button
               type="submit"
-              className="rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+              className="rounded-md bg-brand-primary-strong px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
             >
               Apply
             </button>
             <a
               href={`/responses/${formId}`}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="rounded-md border border-border-default px-3 py-2 text-sm font-semibold text-text-default hover:bg-brand-secondary"
             >
               Reset
             </a>
@@ -360,42 +360,42 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
       {submissions.length > 0 ? (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-700">Submissions List</h2>
-            <p className="text-xs text-slate-500">Showing latest submissions first</p>
+            <h2 className="text-sm font-semibold text-text-default">Submissions List</h2>
+            <p className="text-xs text-text-muted">Showing latest submissions first</p>
           </div>
 
           <FormResponseModalList submissions={submissions} />
 
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 p-3">
-            <p className="text-sm text-slate-600">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-default p-3">
+            <p className="text-sm text-text-muted">
               Page {currentPage} of {totalPages}
             </p>
             <div className="flex items-center gap-2">
               {currentPage > 1 ? (
                 <a
                   href={makePageHref(currentPage - 1)}
-                  className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
                 >
                   Previous
                 </a>
               ) : (
-                <span className="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-400">Previous</span>
+                <span className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-muted opacity-60">Previous</span>
               )}
               {currentPage < totalPages ? (
                 <a
                   href={makePageHref(currentPage + 1)}
-                  className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
                 >
                   Next
                 </a>
               ) : (
-                <span className="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-400">Next</span>
+                <span className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-muted opacity-60">Next</span>
               )}
             </div>
           </div>
         </section>
       ) : (
-        <p className="rounded-lg border border-dashed border-slate-300 p-6 text-sm text-slate-500">
+        <p className="rounded-lg border border-dashed border-border-default p-6 text-sm text-text-muted">
           No responses yet for this form.
         </p>
       )}

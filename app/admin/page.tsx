@@ -242,53 +242,53 @@ export default async function AdminAccountsPage({
       ) : null}
 
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Personnel Accounts</h1>
+        <h1 className="text-xl font-semibold text-text-default">Personnel Accounts</h1>
       </div>
 
-      <form action={createPersonnelAction} className="mb-5 grid gap-3 rounded-lg border border-slate-200 p-4 md:grid-cols-4">
+      <form action={createPersonnelAction} className="mb-5 grid gap-3 rounded-lg border border-border-default bg-surface p-4 md:grid-cols-4">
         <input
           name="name"
           placeholder="Full name"
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
           required
         />
         <input
           name="email"
           type="email"
           placeholder="Email"
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
           required
         />
         <input
           name="password"
           type="password"
           placeholder="Initial password"
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
           required
         />
         <button
           type="submit"
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+          className="rounded-md bg-brand-primary-strong px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
         >
           Add Personnel
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+      <div className="overflow-x-auto rounded-lg border border-border-default bg-surface">
+        <table className="min-w-full divide-y divide-border-default text-sm">
+          <thead className="bg-surface-muted">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold text-slate-600">Name</th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-600">Email</th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-600">Status</th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
+              <th className="px-4 py-3 text-left font-semibold text-text-muted">Name</th>
+              <th className="px-4 py-3 text-left font-semibold text-text-muted">Email</th>
+              <th className="px-4 py-3 text-left font-semibold text-text-muted">Status</th>
+              <th className="px-4 py-3 text-left font-semibold text-text-muted">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-border-default bg-surface">
             {personnel.map((user: { personnelId: number; name: string; email: string; isActive: boolean }) => (
               <tr key={user.personnelId}>
-                <td className="px-4 py-3 text-slate-700">{user.name}</td>
-                <td className="px-4 py-3 text-slate-700">{user.email}</td>
+                <td className="px-4 py-3 text-text-default">{user.name}</td>
+                <td className="px-4 py-3 text-text-default">{user.email}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-semibold ${
@@ -305,7 +305,7 @@ export default async function AdminAccountsPage({
                       <input type="hidden" name="nextStatus" value={String(!user.isActive)} />
                       <button
                         type="submit"
-                        className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                        className="rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-text-default hover:bg-brand-secondary"
                       >
                         {user.isActive ? "Deactivate" : "Activate"}
                       </button>
@@ -315,11 +315,11 @@ export default async function AdminAccountsPage({
                       <input
                         name="newPassword"
                         placeholder="New password"
-                        className="w-36 rounded-md border border-slate-300 px-2 py-1 text-xs"
+                        className="w-36 rounded-md border border-border-default bg-surface px-2 py-1 text-xs"
                       />
                       <button
                         type="submit"
-                        className="rounded-md border border-cyan-300 px-2 py-1 text-xs font-semibold text-cyan-700 hover:bg-cyan-50"
+                        className="rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
                       >
                         Reset Password
                       </button>
@@ -334,7 +334,7 @@ export default async function AdminAccountsPage({
             ))}
             {personnel.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-500">
+                <td colSpan={4} className="px-4 py-6 text-center text-text-muted">
                   No personnel accounts yet.
                 </td>
               </tr>

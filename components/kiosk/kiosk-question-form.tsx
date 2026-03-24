@@ -87,30 +87,30 @@ export function KioskQuestionForm({
     <form action={submitFeedback} method="post" onSubmit={handleSubmit} className="space-y-4">
       {toast ? <FlashToast type={toast.type} message={toast.message} /> : null}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{text.optionalDetails}</h2>
+      <section className="rounded-xl border border-border-default bg-surface p-4 shadow-sm sm:p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">{text.optionalDetails}</h2>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <label className="space-y-1">
-            <span className="text-xs font-medium text-slate-700">{text.yourName}</span>
+            <span className="text-xs font-medium text-text-default">{text.yourName}</span>
             <input
               name="userName"
               defaultValue={initialUserName}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              className="w-full rounded-lg border border-border-default px-3 py-2 text-sm focus:border-brand-primary-strong focus:outline-none focus:ring-2 focus:ring-brand-secondary"
             />
           </label>
 
           <label className="space-y-1">
-            <span className="text-xs font-medium text-slate-700">{text.assistedEmployee}</span>
+            <span className="text-xs font-medium text-text-default">{text.assistedEmployee}</span>
             <input
               name="assistedEmployee"
               defaultValue={initialAssistedEmployee}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              className="w-full rounded-lg border border-border-default px-3 py-2 text-sm focus:border-brand-primary-strong focus:outline-none focus:ring-2 focus:ring-brand-secondary"
             />
           </label>
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <section className="rounded-xl border border-border-default bg-surface p-4 shadow-sm sm:p-5">
         {activeForm.questions.map((question, index) => {
           const isInvalid = invalidQuestions.includes(question.questionId);
           return (
@@ -123,17 +123,17 @@ export function KioskQuestionForm({
               tabIndex={-1}
             >
               <div className="pb-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary-strong">
                   {text.questionLabel} {index + 1} {text.of} {activeForm.questions.length}
                 </p>
-                <p className="mt-1 text-lg font-semibold leading-snug text-slate-900">{question.label}</p>
+                <p className="mt-1 text-lg font-semibold leading-snug text-text-default">{question.label}</p>
               </div>
 
               <div className="grid grid-cols-5 gap-1.5">
                 {ratingOptions.map((option) => (
                   <label
                     key={option.score}
-                    className="inline-flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-center text-sm transition hover:border-cyan-300 hover:bg-cyan-50 sm:min-h-20"
+                    className="inline-flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-border-default bg-surface px-1.5 py-1 text-center text-sm transition hover:border-brand-primary hover:bg-brand-primary-soft sm:min-h-20"
                     title={option.label}
                   >
                     <input
@@ -143,17 +143,17 @@ export function KioskQuestionForm({
                       checked={answers[question.questionId] === option.score}
                       onChange={() => handleChange(question.questionId, option.score)}
                       aria-label={`${option.score} - ${option.label}`}
-                      className="h-4 w-4 accent-cyan-600"
+                      className="h-4 w-4 accent-brand-primary-strong"
                     />
                     <span className="text-xl leading-none" aria-hidden="true">
                       {option.emoji}
                     </span>
-                    <span className="text-xs font-semibold text-slate-700">{option.score}</span>
+                    <span className="text-xs font-semibold text-text-default">{option.score}</span>
                   </label>
                 ))}
               </div>
 
-              {index !== activeForm.questions.length - 1 ? <hr className="my-3 border-slate-200" /> : null}
+              {index !== activeForm.questions.length - 1 ? <hr className="my-3 border-border-default" /> : null}
             </div>
           );
         })}
@@ -162,7 +162,7 @@ export function KioskQuestionForm({
       <div>
         <button
           type="submit"
-          className="rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-500"
+          className="rounded-lg bg-brand-primary-strong px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary"
         >
           {text.submit}
         </button>

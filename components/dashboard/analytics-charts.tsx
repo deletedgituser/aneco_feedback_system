@@ -14,6 +14,11 @@ import { Bar } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+const fallbackChartPalette = {
+  primary: "#c2410c",
+  success: "#15803d",
+};
+
 function formatDateLabel(dateText: string): string {
   const parsed = new Date(dateText);
   if (Number.isNaN(parsed.getTime())) {
@@ -63,6 +68,18 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
   const [perFormRows, setPerFormRows] = useState(perForm);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const chartPalette = useMemo(() => {
+    if (typeof window === "undefined") {
+      return fallbackChartPalette;
+    }
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primary = rootStyles.getPropertyValue("--chart-primary").trim() || fallbackChartPalette.primary;
+    const success = rootStyles.getPropertyValue("--chart-success").trim() || fallbackChartPalette.success;
+
+    return { primary, success };
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -166,12 +183,12 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         {
           label: "Submissions",
           data: trendRows.map((row) => row.count),
-          backgroundColor: "rgba(8, 145, 178, 0.78)",
+          backgroundColor: chartPalette.primary,
           borderRadius: 6,
         },
       ],
     }),
-    [trendRows],
+    [trendRows, chartPalette],
   );
 
   const perFormData = useMemo(
@@ -181,12 +198,12 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         {
           label: "Average Rating",
           data: perFormRows.map((row) => row.averageRating),
-          backgroundColor: "rgba(16, 185, 129, 0.75)",
+          backgroundColor: chartPalette.success,
           borderRadius: 6,
         },
       ],
     }),
-    [perFormRows],
+    [perFormRows, chartPalette],
   );
 
   const formAssessments = useMemo(
@@ -204,15 +221,6 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
     const negative = formAssessments.filter((row) => row.status === "negative").length;
     return { positive, neutral, negative };
   }, [formAssessments]);
-
-  const lowestPerformingForms = useMemo(
-    () =>
-      formAssessments
-        .filter((row) => row.totalResponses > 0)
-        .sort((a, b) => a.averageRating - b.averageRating)
-        .slice(0, 5),
-    [formAssessments],
-  );
 
   const exportBaseQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -239,18 +247,18 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-slate-200 p-4">
+    <section className="space-y-4 rounded-lg border border-border-default bg-surface p-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
-            <label htmlFor="form-filter" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="form-filter" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               Form
             </label>
             <select
               id="form-filter"
               value={selectedForm}
               onChange={(event) => setSelectedForm(event.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
             >
               <option value="all">All forms</option>
               {forms.map((form) => (
@@ -261,7 +269,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
             </select>
           </div>
           <div className="space-y-1">
-            <label htmlFor="from-date" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="from-date" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               From
             </label>
             <input
@@ -269,11 +277,11 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               type="date"
               value={fromDate}
               onChange={(event) => setFromDate(event.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="to-date" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="to-date" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               To
             </label>
             <input
@@ -281,11 +289,11 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               type="date"
               value={toDate}
               onChange={(event) => setToDate(event.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="assisted-employee" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="assisted-employee" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
               Assisted Employee
             </label>
             <input
@@ -293,7 +301,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               value={assistedEmployee}
               onChange={(event) => setAssistedEmployee(event.target.value)}
               placeholder="Name"
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
             />
           </div>
           <button
@@ -304,7 +312,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               setToDate("");
               setAssistedEmployee("");
             }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className="rounded-md border border-border-default px-3 py-2 text-sm font-semibold text-text-default hover:bg-brand-secondary"
           >
             Reset
           </button>
@@ -313,25 +321,25 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         <div className="flex flex-wrap items-center gap-2">
           <a
             href={exportHref("summary", "excel")}
-            className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
           >
             Summary Excel
           </a>
           <a
             href={exportHref("summary", "pdf")}
-            className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
           >
             Summary PDF
           </a>
         </div>
       </div>
 
-      {loading ? <p className="text-xs text-slate-500">Loading analytics...</p> : null}
-      {errorMessage ? <p className="text-xs text-rose-600">{errorMessage}</p> : null}
+      {loading ? <p className="text-xs text-text-muted">Loading analytics...</p> : null}
+      {errorMessage ? <p className="text-xs text-error-fg">{errorMessage}</p> : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 p-3">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Submission Trend</h2>
+        <div className="rounded-lg border border-border-default p-3">
+          <h2 className="mb-2 text-sm font-semibold text-text-default">Submission Trend</h2>
           {hasTrendData ? (
             <div className="h-72">
               <Bar
@@ -359,14 +367,14 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               />
             </div>
           ) : (
-            <p className="rounded-md border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
+            <p className="rounded-md border border-dashed border-border-default p-8 text-center text-sm text-text-muted">
               No submissions found for the current filters.
             </p>
           )}
         </div>
 
-        <div className="rounded-lg border border-slate-200 p-3">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Form Ratings</h2>
+        <div className="rounded-lg border border-border-default p-3">
+          <h2 className="mb-2 text-sm font-semibold text-text-default">Form Ratings</h2>
           {hasPerFormData ? (
             <div className="h-72">
               <Bar
@@ -402,15 +410,15 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               />
             </div>
           ) : (
-            <p className="rounded-md border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
+            <p className="rounded-md border border-dashed border-border-default p-8 text-center text-sm text-text-muted">
               No form rating data for the current filters.
             </p>
           )}
         </div>
       </div>
 
-      <div className="rounded-lg border border-slate-200 p-3">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Form Health Snapshot</h2>
+      <div className="rounded-lg border border-border-default p-3">
+        <h2 className="mb-3 text-sm font-semibold text-text-default">Form Health Snapshot</h2>
         <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
           <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-700">Positive: {assessmentSummary.positive}</span>
           <span className="rounded-full bg-amber-100 px-2 py-1 text-amber-700">Neutral: {assessmentSummary.neutral}</span>
@@ -420,10 +428,10 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         {formAssessments.length > 0 ? (
           <ul className="space-y-2">
             {formAssessments.map((row) => (
-              <li key={row.formId} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm">
-                <span className="font-medium text-slate-800">{row.title}</span>
+              <li key={row.formId} className="flex items-center justify-between rounded-md bg-surface-muted px-3 py-2 text-sm">
+                <span className="font-medium text-text-default">{row.title}</span>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                  <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border-default">
                     {row.averageRating.toFixed(2)} ({row.totalResponses})
                   </span>
                   <span
@@ -434,7 +442,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
                           ? "bg-amber-100 text-amber-700"
                           : row.status === "negative"
                             ? "bg-rose-100 text-rose-700"
-                            : "bg-slate-100 text-slate-600"
+                            : "bg-surface-muted text-text-muted"
                     }`}
                   >
                     {row.label}
@@ -444,14 +452,14 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
             ))}
           </ul>
         ) : (
-          <p className="rounded-md border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+          <p className="rounded-md border border-dashed border-border-default p-6 text-center text-sm text-text-muted">
             No form assessments available for the current filters.
           </p>
         )}
       </div>
 
       {selectedForm !== "all" || fromDate || toDate || assistedEmployee.trim() ? (
-        <p className="text-xs text-slate-500">Filters applied to analytics.</p>
+        <p className="text-xs text-text-muted">Filters applied to analytics.</p>
       ) : null}
     </section>
   );
