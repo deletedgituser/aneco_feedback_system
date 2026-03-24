@@ -5,6 +5,7 @@ import { getSessionPayload } from "@/lib/auth/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { FlashToast } from "@/components/ui/flash-toast";
+import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
 
 export default async function FormsPage({
   searchParams,
@@ -76,7 +77,7 @@ export default async function FormsPage({
     revalidatePath("/forms");
     revalidatePath("/dashboard");
     revalidatePath("/kiosk");
-    redirect("/forms?toastType=success&toastMessage=Form+created+successfully.");
+    redirect(`/forms/${createdForm.formId}?toastType=success&toastMessage=Form+created+successfully.`);
   }
 
   async function toggleFormStatusAction(formData: FormData) {
@@ -254,7 +255,7 @@ export default async function FormsPage({
         </section>
       ) : null}
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         {forms.map(
           (form: {
             formId: number;
@@ -263,11 +264,12 @@ export default async function FormsPage({
             language: string;
             isActive: boolean;
           }) => (
-          <article key={form.formId} className="rounded-lg border border-slate-200 p-4">
+          <article key={form.formId} className="flex h-full flex-col rounded-lg border border-slate-200 bg-white p-4">
             <h2 className="font-semibold text-slate-900">{form.title}</h2>
-            <p className="mt-1 text-sm text-slate-600">{form.description ?? "No description"}</p>
-            <div className="mt-3 flex items-center gap-4 text-sm">
-              <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">{form.language}</span>
+            <p className="mt-1 flex-grow text-sm text-slate-600">{form.description ?? "No description"}</p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{form.language}</span>
               <span
                 className={`rounded-full px-2 py-1 text-xs font-semibold ${
                   form.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
@@ -275,13 +277,16 @@ export default async function FormsPage({
               >
                 {form.isActive ? "Active" : "Inactive"}
               </span>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 href={`/kiosk/forms/${form.formId}?returnUrl=${encodeURIComponent("/forms")}`}
-                className="text-cyan-700 hover:text-cyan-600"
+                className="rounded-md border border-cyan-300 px-3 py-2 text-xs font-semibold text-cyan-700 hover:bg-cyan-50"
               >
                 Open kiosk form
               </Link>
-              <Link href={`/forms/${form.formId}`} className="text-slate-700 hover:text-slate-900">
+              <Link href={`/forms/${form.formId}`} className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
                 Edit form
               </Link>
               <form action={toggleFormStatusAction}>
@@ -289,19 +294,14 @@ export default async function FormsPage({
                 <input type="hidden" name="nextStatus" value={String(!form.isActive)} />
                 <button
                   type="submit"
-                  className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                 >
                   {form.isActive ? "Deactivate" : "Activate"}
                 </button>
               </form>
               <form action={deleteFormAction}>
                 <input type="hidden" name="formId" value={form.formId} />
-                <button
-                  type="submit"
-                  className="rounded-md border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                >
-                  Delete
-                </button>
+                <ConfirmDeleteButton formId={form.formId}>Delete</ConfirmDeleteButton>
               </form>
             </div>
           </article>

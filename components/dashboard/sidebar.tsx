@@ -28,9 +28,13 @@ type SidebarProps = {
   title: string;
   items: NavItem[];
   logoutLabel?: string;
+  userInfo?: {
+    role: "admin" | "personnel";
+    displayName: string;
+  };
 };
 
-export function Sidebar({ title, items, logoutLabel = "Logout" }: SidebarProps) {
+export function Sidebar({ title, items, logoutLabel = "Logout", userInfo }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -42,7 +46,7 @@ export function Sidebar({ title, items, logoutLabel = "Logout" }: SidebarProps) 
     >
       <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="ANECO logo" width={24} height={24} className="h-6 w-6 object-contain" priority />
+          <Image src="/logo.png" alt="ANECO logo" width={30} height={30} className="h-8 w-8 object-contain" priority />
           {!collapsed ? <span className="text-sm font-semibold text-slate-700">{title}</span> : null}
         </div>
         <button
