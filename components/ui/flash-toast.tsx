@@ -28,8 +28,14 @@ export function FlashToast({ type, message }: FlashToastProps) {
       : "border-rose-200 bg-rose-50 text-rose-800";
 
   return (
-    <div className={`mb-4 rounded-md border px-4 py-3 text-sm font-medium ${styles}`} role="status" aria-live="polite">
-      {message}
+    <div className="fixed top-4 right-4 z-50 max-w-xs sm:max-w-sm">
+      <div
+        className={`rounded-md border px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ease-out ${styles}`}
+        role="status"
+        aria-live="polite"
+      >
+        {message}
+      </div>
     </div>
   );
 }

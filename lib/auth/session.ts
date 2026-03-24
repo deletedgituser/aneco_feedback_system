@@ -56,10 +56,13 @@ export async function createSession(input: {
 
 export async function setSessionCookie(token: string): Promise<void> {
   const cookieStore = await cookies();
+
+  const isProd = process.env.NODE_ENV === "production";
+
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "lax" : "lax", // localhost & network-safe in dev
     path: "/",
     maxAge: 24 * 60 * 60,
   });

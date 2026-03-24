@@ -36,7 +36,9 @@ export function LoginForm() {
         return;
       }
 
-      router.push(data.redirectTo ?? "/");
+      const redirectUrl = data.redirectTo ? data.redirectTo : "/dashboard";
+      const separator = redirectUrl.includes("?") ? "&" : "?";
+      router.push(`${redirectUrl}${separator}toastType=success&toastMessage=Logged+in+successfully`);
       router.refresh();
     } catch {
       setError("Unable to login right now. Please try again.");

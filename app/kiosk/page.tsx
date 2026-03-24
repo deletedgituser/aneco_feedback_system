@@ -33,7 +33,7 @@ export default async function KioskLandingPage() {
         {forms.map((form: { formId: number; title: string; description: string | null; language: string }) => (
           <article
             key={form.formId}
-            className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+            className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900">{form.title}</h2>
@@ -42,7 +42,7 @@ export default async function KioskLandingPage() {
               </span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">{form.description ?? "No description provided."}</p>
-            <div className="mt-5 flex items-center justify-between">
+            <div className="mt-auto flex items-center justify-between">
               <span className="text-xs font-medium text-slate-500">{new Date().toLocaleDateString()}</span>
               <Link
                 href={`/kiosk/forms/${form.formId}`}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type ConfirmDeleteButtonProps = {
   formId: number;
@@ -8,24 +8,50 @@ type ConfirmDeleteButtonProps = {
 };
 
 export function ConfirmDeleteButton({ formId, children }: ConfirmDeleteButtonProps) {
-  const router = useRouter();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!confirm("Delete this account? This cannot be undone.")) {
-      event.preventDefault();
-      return;
-    }
+  const handleTrigger = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setConfirmOpen(true);
+  };
 
-    // optional: nothing else, form submit will proceed
+  const handleCancel = () => {
+    setConfirmOpen(false);
   };
 
   return (
-    <button
-      type="submit"
-      onClick={handleClick}
-      className="rounded-md border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-    >
-      {children}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleTrigger}
+        className="rounded-md border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+      >
+        {children}
+      </button>
+
+      {confirmOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="max-w-sm rounded-xl border border-slate-200 bg-white p-5 shadow-lg">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">Confirm Delete</h3>
+            <p className="mb-4 text-sm text-slate-700">Are you sure you want to delete? This action cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
