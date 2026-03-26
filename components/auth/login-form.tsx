@@ -55,7 +55,7 @@ export function LoginForm() {
           type="text"
           value={usernameOrEmail}
           onChange={(event) => setUsernameOrEmail(event.target.value)}
-          className="w-full rounded-lg border border-border-default bg-surface px-3 py-2 text-sm outline-none transition focus:border-brand-primary-strong focus:ring-2 focus:ring-brand-secondary"
+          className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-text-default outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/25"
           required
         />
       </label>
@@ -66,7 +66,7 @@ export function LoginForm() {
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="w-full rounded-lg border border-border-default bg-surface px-3 py-2 text-sm outline-none transition focus:border-brand-primary-strong focus:ring-2 focus:ring-brand-secondary"
+          className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-text-default outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/25"
           required
         />
       </label>
@@ -76,7 +76,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-brand-primary-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary disabled:cursor-not-allowed disabled:opacity-70"
+        className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? "Signing in..." : "Sign in"}
       </button>

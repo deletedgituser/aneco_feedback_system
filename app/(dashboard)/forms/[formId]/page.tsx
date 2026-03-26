@@ -5,6 +5,7 @@ import { logAuditEvent } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { FlashToast } from "@/components/ui/flash-toast";
 import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{ formId: string }>;
@@ -198,7 +199,7 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
     <section className="space-y-6">
       {query.toastType && query.toastMessage ? <FlashToast type={query.toastType} message={query.toastMessage} /> : null}
 
-      <header className="rounded-xl border border-border-default bg-surface p-5 shadow-sm">
+      <header className="rounded-2xl border border-border bg-surface p-6 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-text-muted">Form Management</p>
@@ -206,7 +207,7 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              form.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+              form.isActive ? "bg-success/20 text-success" : "bg-danger/18 text-danger"
             }`}
           >
             {form.isActive ? "Active" : "Inactive"}
@@ -216,7 +217,7 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border-default bg-surface p-5 shadow-sm">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-lg font-semibold text-text-default">Form Details</h2>
           <form action={updateFormDetailsAction} className="space-y-3">
             <div>
@@ -227,7 +228,7 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
                 id="title"
                 name="title"
                 defaultValue={form.title}
-                className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
                 required
               />
             </div>
@@ -240,7 +241,7 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
                 id="language"
                 name="language"
                 defaultValue={form.language === "bis" ? "bis" : "en"}
-                className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
                 required
               >
                 <option value="en">English (en)</option>
@@ -256,40 +257,40 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
                 id="description"
                 name="description"
                 defaultValue={form.description ?? ""}
-                className="h-24 w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+                className="h-24 w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
               />
             </div>
 
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
-                className="rounded-md bg-brand-primary-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
+                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
               >
                 Save Changes
               </button>
-              <a
+              <Link
                 href="/forms"
-                className="rounded-md border border-border-default px-4 py-2 text-sm font-semibold text-text-default hover:bg-brand-secondary"
+                className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-text-default hover:bg-surface-soft"
               >
                 Cancel
-              </a>
+              </Link>
             </div>
           </form>
         </div>
 
-        <div className="rounded-xl border border-border-default bg-surface p-5 shadow-sm">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-lg font-semibold text-text-default">Questions</h2>
 
           <form action={addQuestionAction} className="mb-4 flex gap-2">
             <input
               name="label"
               placeholder="Add new smiley question"
-              className="w-full rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
               required
             />
             <button
               type="submit"
-              className="rounded-md bg-brand-primary-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
+              className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
             >
               Add
             </button>
@@ -297,13 +298,13 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
 
           <div className="space-y-2">
             {form.questions.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border-default p-4 text-sm text-text-muted">
+              <p className="rounded-xl border border-dashed border-border p-4 text-sm text-text-muted">
                 No questions yet.
               </p>
             ) : (
               <ol className="space-y-2">
                 {form.questions.map((question) => (
-                  <li key={question.questionId} className="rounded-lg border border-border-default bg-surface-muted p-3">
+                  <li key={question.questionId} className="rounded-xl border border-border bg-surface-soft p-3">
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-sm font-medium text-text-default">
                         {question.displayOrder}. {question.label}

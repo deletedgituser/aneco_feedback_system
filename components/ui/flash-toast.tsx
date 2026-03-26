@@ -24,8 +24,8 @@ export function FlashToast({ type, message }: FlashToastProps) {
 
   const styles =
     type === "success"
-      ? "border-green-200 bg-success-bg text-success-fg"
-      : "border-rose-200 bg-error-bg text-error-fg";
+      ? "border-success/30 bg-success-bg text-success-fg"
+      : "border-danger/30 bg-error-bg text-error-fg";
 
   const liveMode = type === "error" ? "assertive" : "polite";
   const role = type === "error" ? "alert" : "status";
@@ -33,7 +33,7 @@ export function FlashToast({ type, message }: FlashToastProps) {
   return (
     <div className="fixed top-4 right-4 z-50 max-w-xs sm:max-w-sm">
       <div
-        className={`rounded-md border px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ease-out ${styles}`}
+        className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl transition-all duration-300 ease-out ${styles}`}
         role={role}
         aria-live={liveMode}
       >

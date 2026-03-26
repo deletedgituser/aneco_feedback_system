@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 type AuditInput = {
   actorRole: "admin" | "personnel" | "kiosk" | "system";
@@ -10,6 +11,10 @@ type AuditInput = {
 };
 
 export async function logAuditEvent(input: AuditInput): Promise<void> {
+  const metadataJson = input.metadata
+    ? (JSON.parse(JSON.stringify(input.metadata)) as Prisma.InputJsonValue)
+    : undefined;
+
   await prisma.auditLog.create({
     data: {
       actorRole: input.actorRole,
@@ -17,7 +22,7 @@ export async function logAuditEvent(input: AuditInput): Promise<void> {
       actionType: input.actionType,
       targetType: input.targetType,
       targetId: input.targetId,
-      metadataJson: input.metadata,
+      metadataJson,
     },
   });
 }

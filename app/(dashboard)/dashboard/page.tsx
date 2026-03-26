@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { AnalyticsCharts } from "@/components/dashboard/analytics-charts";
 import Link from "next/link";
+import { ClipboardList, Star, Vote } from "lucide-react";
+import { StatCard } from "@/components/ui/stat-card";
 
 async function getSummary() {
   const [totalSubmissions, averageRating, totalForms] = await Promise.all([
@@ -142,29 +144,21 @@ export default async function DashboardPage() {
   const chartData = await getChartData();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-text-default">Analytics Snapshot</h1>
+        <h1 className="text-2xl font-semibold text-text-default">Analytics Snapshot</h1>
         <Link
           href="/forms"
-          className="rounded-md bg-brand-primary-strong px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
+          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
         >
           Manage Forms
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <article className="rounded-lg border border-border-default bg-surface p-4">
-          <p className="text-sm text-text-muted">Total submissions</p>
-          <p className="mt-1 text-2xl font-semibold text-text-default">{summary.totalSubmissions}</p>
-        </article>
-        <article className="rounded-lg border border-border-default bg-surface p-4">
-          <p className="text-sm text-text-muted">Average rating</p>
-          <p className="mt-1 text-2xl font-semibold text-text-default">{summary.averageRating}</p>
-        </article>
-        <article className="rounded-lg border border-border-default bg-surface p-4">
-          <p className="text-sm text-text-muted">Active forms</p>
-          <p className="mt-1 text-2xl font-semibold text-text-default">{summary.totalForms}</p>
-        </article>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard label="Total submissions" value={summary.totalSubmissions} icon={Vote} />
+        <StatCard label="Average rating" value={summary.averageRating} icon={Star} />
+        <StatCard label="Active forms" value={summary.totalForms} icon={ClipboardList} />
       </div>
 
       <AnalyticsCharts
@@ -175,33 +169,33 @@ export default async function DashboardPage() {
         perQuestion={chartData.perQuestion}
       />
 
-      <section className="rounded-lg border border-border-default bg-surface p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text-default">Personnel Forms</h2>
-          <Link href="/forms" className="text-sm font-semibold text-brand-primary-strong hover:text-brand-primary">
+      <section className="rounded-2xl border border-border bg-surface p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-text-default">Personnel Forms</h2>
+          <Link href="/forms" className="text-sm font-semibold text-primary hover:text-primary-hover">
             Open forms page
           </Link>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {chartData.forms.map((form: { formId: number; title: string; isActive: boolean }) => (
-            <article key={form.formId} className="rounded-md border border-border-default bg-surface p-3">
+            <article key={form.formId} className="rounded-2xl border border-border bg-surface-soft p-4">
               <p className="text-sm font-semibold text-text-default">{form.title}</p>
               <div className="mt-2 flex items-center justify-between">
                 <span
-                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                    form.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    form.isActive ? "bg-success/20 text-success" : "bg-danger/18 text-danger"
                   }`}
                 >
                   {form.isActive ? "Active" : "Inactive"}
                 </span>
-                <Link href={`/forms/${form.formId}`} className="text-xs font-semibold text-text-default hover:text-brand-primary-strong">
+                <Link href={`/forms/${form.formId}`} className="text-xs font-semibold text-text-default hover:text-primary">
                   Edit
                 </Link>
               </div>
             </article>
           ))}
           {chartData.forms.length === 0 ? (
-            <p className="rounded-md border border-dashed border-border-default p-4 text-sm text-text-muted">
+            <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-text-muted">
               No forms yet. Create your first form in the forms page.
             </p>
           ) : null}

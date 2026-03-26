@@ -11,7 +11,7 @@ export function ChartCard({ title, subtitle, children }: ChartCardProps) {
   return (
     <Card>
       <CardHeader title={title} subtitle={subtitle} />
-      <div className="rounded-xl border border-border bg-surface-raised p-4">{children}</div>
+      <div className="rounded-2xl border border-border bg-surface-soft p-4">{children}</div>
     </Card>
   );
 }

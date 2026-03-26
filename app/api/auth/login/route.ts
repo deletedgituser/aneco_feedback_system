@@ -20,13 +20,14 @@ export async function POST(request: Request) {
   }
 
   const usernameOrEmail = body.usernameOrEmail.trim();
+  const personnelEmail = usernameOrEmail.toLowerCase();
 
   const [admin, personnel] = await Promise.all([
     prisma.admin.findUnique({
       where: { username: usernameOrEmail },
     }),
     prisma.personnel.findUnique({
-      where: { email: usernameOrEmail },
+      where: { email: personnelEmail },
     }),
   ]);
 
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
         actorRole: "system",
         actionType: "auth.login.failed",
         targetType: "personnel",
-        metadata: { email: usernameOrEmail },
+        metadata: { email: personnelEmail },
       });
       return NextResponse.json({ message: "Invalid credentials." }, { status: 401 });
     }
