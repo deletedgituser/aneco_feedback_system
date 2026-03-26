@@ -9,9 +9,9 @@ export function ProgressBar({ value, className }: ProgressBarProps) {
   const clampedValue = Math.min(100, Math.max(0, value));
 
   return (
-    <div className={cn("h-2.5 w-full rounded-full bg-primary-light", className)}>
+    <div className={cn("h-2.5 w-full rounded-full bg-surface-soft", className)}>
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-150 ease-in-out"
+        className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-150 ease-in-out"
         style={{ width: `${clampedValue}%` }}
       />
     </div>

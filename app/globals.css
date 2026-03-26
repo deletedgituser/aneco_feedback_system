@@ -1,27 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffaf5;
-  --foreground: #222222;
-  --surface: #ffffff;
-  --surface-muted: #fff4e8;
-  --surface-dark: #222222;
-  --brand-primary: #ff6a00;
-  --brand-primary-strong: #c2410c;
-  --brand-primary-soft: #fff1e6;
-  --brand-secondary: #fcd5b0;
-  --border-default: #f0c9a3;
-  --text-default: #222222;
-  --text-muted: #5f5b57;
-  --success-bg: #ecfdf3;
-  --success-fg: #166534;
-  --error-bg: #fff1f2;
-  --error-fg: #9f1239;
-  --warning-bg: #fff7ed;
-  --warning-fg: #9a3412;
-  --focus-ring: #c2410c;
-  --chart-primary: #c2410c;
-  --chart-success: #15803d;
+  --color-primary: #3e5f5c;
+  --color-primary-hover: #355250;
+  --color-primary-soft: #6e8f8b;
+  --color-accent: #d4a017;
+  --color-bg: #e9f0ef;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f4f7f6;
+  --color-sidebar: #3e5f5c;
+  --color-border: #dce5e4;
+  --color-text-primary: #1f2d2c;
+  --color-text-secondary: #6b7c7a;
+  --color-text-muted: #9baaaa;
+  --color-text-inverse: #ffffff;
+  --color-success: #4caf50;
+  --color-warning: #e9c46a;
+  --color-danger: #e76f51;
+  --color-info: #3a86ff;
+
+  --background: var(--color-bg);
+  --foreground: var(--color-text-primary);
+  --surface: var(--color-surface);
+  --surface-muted: var(--color-surface-soft);
+  --surface-dark: #1d2b2a;
+  --surface-raised: #f8fbfa;
+  --brand-primary: var(--color-primary);
+  --brand-primary-strong: var(--color-primary);
+  --brand-primary-soft: var(--color-primary-soft);
+  --brand-secondary: var(--color-accent);
+  --border-default: var(--color-border);
+  --text-default: var(--color-text-primary);
+  --text-muted: var(--color-text-secondary);
+  --success-bg: color-mix(in srgb, var(--color-success) 14%, white);
+  --success-fg: #2e7d32;
+  --error-bg: color-mix(in srgb, var(--color-danger) 18%, white);
+  --error-fg: #9f4631;
+  --warning-bg: color-mix(in srgb, var(--color-warning) 32%, white);
+  --warning-fg: #8c6b1a;
+  --focus-ring: color-mix(in srgb, var(--color-primary) 50%, white);
+  --chart-primary: var(--color-primary);
+  --chart-success: var(--color-accent);
 }
 
 @theme inline {
@@ -35,7 +54,18 @@
   --color-brand-primary-soft: var(--brand-primary-soft);
   --color-brand-secondary: var(--brand-secondary);
   --color-border-default: var(--border-default);
+  --color-border: var(--color-border);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-light: color-mix(in srgb, var(--color-primary) 16%, white);
+  --color-accent: var(--color-accent);
+  --color-sidebar: var(--color-sidebar);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-soft: var(--color-surface-soft);
   --color-text-default: var(--text-default);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-inverse: var(--color-text-inverse);
   --color-text-muted: var(--text-muted);
   --color-success-bg: var(--success-bg);
   --color-success-fg: var(--success-fg);
@@ -43,6 +73,10 @@
   --color-error-fg: var(--error-fg);
   --color-warning-bg: var(--warning-bg);
   --color-warning-fg: var(--warning-fg);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
   --color-focus-ring: var(--focus-ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -50,8 +84,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #fffaf5;
-    --foreground: #222222;
+    --background: var(--color-bg);
+    --foreground: var(--color-text-primary);
   }
 }
 
@@ -59,6 +93,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
+  background-image:
+    radial-gradient(circle at 0% 8%, color-mix(in srgb, var(--color-accent) 22%, transparent) 0 110px, transparent 111px),
+    radial-gradient(circle at 96% 88%, color-mix(in srgb, var(--color-primary-soft) 20%, transparent) 0 160px, transparent 161px);
+  background-attachment: fixed;
 }
 
 :is(a, button, input, select, textarea, [role="button"], [tabindex]):focus-visible {

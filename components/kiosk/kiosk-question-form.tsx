@@ -29,7 +29,6 @@ type KioskFormProps = {
   };
   initialUserName: string;
   initialAssistedEmployee: string;
-  returnUrl: string;
   text: KioskFormText;
   submitFeedback: (formData: FormData) => Promise<void>;
 };
@@ -46,7 +45,6 @@ export function KioskQuestionForm({
   activeForm,
   initialUserName,
   initialAssistedEmployee,
-  returnUrl,
   text,
   submitFeedback,
 }: KioskFormProps) {
@@ -87,7 +85,7 @@ export function KioskQuestionForm({
     <form action={submitFeedback} onSubmit={handleSubmit} className="space-y-4">
       {toast ? <FlashToast type={toast.type} message={toast.message} /> : null}
 
-      <section className="rounded-xl border border-border-default bg-surface p-4 shadow-sm sm:p-5">
+      <section className="rounded-2xl border border-border bg-surface p-5 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)]">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">{text.optionalDetails}</h2>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <label className="space-y-1">
@@ -95,7 +93,7 @@ export function KioskQuestionForm({
             <input
               name="userName"
               defaultValue={initialUserName}
-              className="w-full rounded-lg border border-border-default px-3 py-2 text-sm focus:border-brand-primary-strong focus:outline-none focus:ring-2 focus:ring-brand-secondary"
+              className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
             />
           </label>
 
@@ -104,13 +102,13 @@ export function KioskQuestionForm({
             <input
               name="assistedEmployee"
               defaultValue={initialAssistedEmployee}
-              className="w-full rounded-lg border border-border-default px-3 py-2 text-sm focus:border-brand-primary-strong focus:outline-none focus:ring-2 focus:ring-brand-secondary"
+              className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
             />
           </label>
         </div>
       </section>
 
-      <section className="rounded-xl border border-border-default bg-surface p-4 shadow-sm sm:p-5">
+      <section className="rounded-2xl border border-border bg-surface p-5 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)]">
         {activeForm.questions.map((question, index) => {
           const isInvalid = invalidQuestions.includes(question.questionId);
           return (
@@ -123,7 +121,7 @@ export function KioskQuestionForm({
               tabIndex={-1}
             >
               <div className="pb-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary-strong">
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                   {text.questionLabel} {index + 1} {text.of} {activeForm.questions.length}
                 </p>
                 <p className="mt-1 text-lg font-semibold leading-snug text-text-default">{question.label}</p>
@@ -133,7 +131,7 @@ export function KioskQuestionForm({
                 {ratingOptions.map((option) => (
                   <label
                     key={option.score}
-                    className="inline-flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-border-default bg-surface px-1.5 py-1 text-center text-sm transition hover:border-brand-primary hover:bg-brand-primary-soft sm:min-h-20"
+                    className="inline-flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-border bg-surface-soft px-1.5 py-1 text-center text-sm transition hover:border-primary hover:bg-surface sm:min-h-20"
                     title={option.label}
                   >
                     <input
@@ -143,7 +141,7 @@ export function KioskQuestionForm({
                       checked={answers[question.questionId] === option.score}
                       onChange={() => handleChange(question.questionId, option.score)}
                       aria-label={`${option.score} - ${option.label}`}
-                      className="h-4 w-4 accent-brand-primary-strong"
+                      className="h-4 w-4 accent-primary"
                     />
                     <span className="text-xl leading-none" aria-hidden="true">
                       {option.emoji}
@@ -153,7 +151,7 @@ export function KioskQuestionForm({
                 ))}
               </div>
 
-              {index !== activeForm.questions.length - 1 ? <hr className="my-3 border-border-default" /> : null}
+              {index !== activeForm.questions.length - 1 ? <hr className="my-4 border-border" /> : null}
             </div>
           );
         })}
@@ -162,7 +160,7 @@ export function KioskQuestionForm({
       <div>
         <button
           type="submit"
-          className="rounded-lg bg-brand-primary-strong px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary"
+          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
         >
           {text.submit}
         </button>

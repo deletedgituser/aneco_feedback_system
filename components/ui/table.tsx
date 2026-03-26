@@ -20,10 +20,10 @@ export function ResponsiveTable<T extends Record<string, ReactNode>>({
   className,
 }: ResponsiveTableProps<T>) {
   return (
-    <div className={cn("rounded-2xl border border-border bg-surface", className)}>
+    <div className={cn("rounded-2xl border border-border bg-surface shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)]", className)}>
       <div className="hidden overflow-x-auto md:block">
         <table className="min-w-full text-sm">
-          <thead className="bg-surface-raised text-text-secondary">
+          <thead className="bg-surface-soft text-text-secondary">
             <tr>
               {columns.map((column) => (
                 <th key={String(column.key)} className="px-4 py-3 text-left font-semibold">
@@ -47,7 +47,7 @@ export function ResponsiveTable<T extends Record<string, ReactNode>>({
       </div>
       <div className="grid gap-3 p-3 md:hidden">
         {rows.map((row, index) => (
-          <div key={rowKey(row, index)} className="rounded-xl border border-border bg-surface-raised p-4">
+          <div key={rowKey(row, index)} className="rounded-xl border border-border bg-surface-soft p-4">
             {columns.map((column) => (
               <div key={String(column.key)} className="flex items-start justify-between gap-3 py-1.5 text-sm">
                 <span className="font-semibold text-text-secondary">{column.label}</span>

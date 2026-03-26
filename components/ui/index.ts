@@ -11,6 +11,7 @@ export { ProgressBar } from "@/components/ui/progress-bar";
 export { Select } from "@/components/ui/select";
 export { AppSidebar } from "@/components/ui/sidebar";
 export { StatCard } from "@/components/ui/stat-card";
+export { TableCard } from "@/components/ui/table-card";
 export { ResponsiveTable } from "@/components/ui/table";
 export { Tabs } from "@/components/ui/tabs";
 export { Textarea } from "@/components/ui/textarea";

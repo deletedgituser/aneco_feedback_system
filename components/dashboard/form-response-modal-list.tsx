@@ -62,7 +62,7 @@ export function FormResponseModalList({ submissions }: FormResponseModalListProp
     <>
       <ul className="space-y-2">
         {submissions.map((submission) => (
-          <li key={submission.feedbackId} className="rounded-lg border border-border-default bg-surface p-3 shadow-sm">
+          <li key={submission.feedbackId} className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm text-text-default">
                 <p className="font-medium text-text-default">
@@ -76,7 +76,7 @@ export function FormResponseModalList({ submissions }: FormResponseModalListProp
               <button
                 type="button"
                 onClick={() => setSelectedFeedbackId(submission.feedbackId)}
-                className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
+                className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-primary hover:bg-surface-soft"
               >
                 Open Response
               </button>
@@ -87,8 +87,8 @@ export function FormResponseModalList({ submissions }: FormResponseModalListProp
 
       {selectedSubmission ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-dark/50 p-4" role="dialog" aria-modal="true">
-          <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface shadow-xl">
-            <div className="flex items-center justify-between border-b border-border-default px-4 py-3">
+          <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-surface shadow-xl">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div>
                 <h3 className="text-base font-semibold text-text-default">Submission Details</h3>
                 <p className="text-xs text-text-muted">Submitted: {formatDateTime(selectedSubmission.submittedAt)}</p>
@@ -96,14 +96,14 @@ export function FormResponseModalList({ submissions }: FormResponseModalListProp
               <button
                 type="button"
                 onClick={() => setSelectedFeedbackId(null)}
-                className="rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-text-default hover:bg-brand-secondary"
+                className="rounded-xl border border-border px-2.5 py-1 text-xs font-semibold text-text-default hover:bg-surface-soft"
               >
                 Close
               </button>
             </div>
 
             <div className="space-y-3 p-4">
-              <div className="grid gap-2 rounded-lg border border-border-default bg-surface-muted p-3 text-sm text-text-default sm:grid-cols-2">
+              <div className="grid gap-2 rounded-2xl border border-border bg-surface-soft p-3 text-sm text-text-default sm:grid-cols-2">
                 <p>
                   <span className="font-semibold text-text-default">User:</span>{" "}
                   {selectedSubmission.userName?.trim() ? selectedSubmission.userName : "Anonymous"}
@@ -116,13 +116,13 @@ export function FormResponseModalList({ submissions }: FormResponseModalListProp
 
               <ul className="space-y-2">
                 {selectedSubmission.responses.map((response) => (
-                  <li key={response.responseId} className="rounded-lg border border-border-default bg-surface p-3">
+                  <li key={response.responseId} className="rounded-2xl border border-border bg-surface p-3">
                     <p className="text-sm font-medium text-text-default">{response.questionLabel}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-text-default">
-                      <span className="rounded-full bg-brand-secondary px-2 py-1 text-xs font-semibold text-text-default">
+                      <span className="rounded-full bg-accent/28 px-2 py-1 text-xs font-semibold text-text-default">
                         Value: {response.answerValue}/5
                       </span>
-                      <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold text-text-default">
+                      <span className="rounded-full bg-surface-soft px-2 py-1 text-xs font-semibold text-text-default">
                         Rate: {scoreLabel(response.answerValue)}
                       </span>
                     </div>

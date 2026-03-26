@@ -197,11 +197,29 @@ export default async function AdminAccountsPage({
       select: { passwordHash: true },
     });
 
-    for (const item of recentHistory) {
-      const reused = await verifyPassword(nextPassword, item.passwordHash);
+    const isReusedPassword = async (candidate: string): Promise<boolean> => {
+      for (const item of recentHistory) {
+        const reused = await verifyPassword(candidate, item.passwordHash);
+        if (reused) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (explicitPassword) {
+      const reused = await isReusedPassword(nextPassword);
       if (reused) {
+        redirectWithToast("error", "New password must not match any of the last 5 passwords.");
+      }
+    } else {
+      let attempts = 0;
+      while (await isReusedPassword(nextPassword)) {
+        attempts += 1;
+        if (attempts >= 10) {
+          redirectWithToast("error", "Unable to generate a unique temporary password. Please try again.");
+        }
         nextPassword = buildStrongTemporaryPassword();
-        break;
       }
     }
 
@@ -248,47 +266,47 @@ export default async function AdminAccountsPage({
   }
 
   return (
-    <section>
+    <section className="space-y-6">
       {query.toastType && query.toastMessage ? (
         <FlashToast type={query.toastType} message={query.toastMessage} />
       ) : null}
 
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-text-default">Personnel Accounts</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-text-default">Personnel Accounts</h1>
       </div>
 
-      <form action={createPersonnelAction} className="mb-5 grid gap-3 rounded-lg border border-border-default bg-surface p-4 md:grid-cols-4">
+      <form action={createPersonnelAction} className="grid gap-3 rounded-2xl border border-border bg-surface-soft p-5 md:grid-cols-4">
         <input
           name="name"
           placeholder="Full name"
-          className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+          className="rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
           required
         />
         <input
           name="email"
           type="email"
           placeholder="Email"
-          className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+          className="rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
           required
         />
         <input
           name="password"
           type="password"
           placeholder="Initial password"
-          className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm"
+          className="rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
           required
         />
         <button
           type="submit"
-          className="rounded-md bg-brand-primary-strong px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
+          className="rounded-xl bg-primary px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
         >
           Add Personnel
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-border-default bg-surface">
-        <table className="min-w-full divide-y divide-border-default text-sm">
-          <thead className="bg-surface-muted">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-soft">
             <tr>
               <th className="px-4 py-3 text-left font-semibold text-text-muted">Name</th>
               <th className="px-4 py-3 text-left font-semibold text-text-muted">Email</th>
@@ -296,7 +314,7 @@ export default async function AdminAccountsPage({
               <th className="px-4 py-3 text-left font-semibold text-text-muted">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border-default bg-surface">
+          <tbody className="divide-y divide-border bg-surface">
             {personnel.map((user: { personnelId: number; name: string; email: string; isActive: boolean }) => (
               <tr key={user.personnelId}>
                 <td className="px-4 py-3 text-text-default">{user.name}</td>
@@ -304,7 +322,7 @@ export default async function AdminAccountsPage({
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                      user.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                      user.isActive ? "bg-success/20 text-success" : "bg-danger/18 text-danger"
                     }`}
                   >
                     {user.isActive ? "Active" : "Inactive"}
@@ -317,7 +335,7 @@ export default async function AdminAccountsPage({
                       <input type="hidden" name="nextStatus" value={String(!user.isActive)} />
                       <button
                         type="submit"
-                        className="rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-text-default hover:bg-brand-secondary"
+                        className="rounded-xl border border-border px-2.5 py-1.5 text-xs font-semibold text-text-default hover:bg-surface-soft"
                       >
                         {user.isActive ? "Deactivate" : "Activate"}
                       </button>
@@ -327,11 +345,11 @@ export default async function AdminAccountsPage({
                       <input
                         name="newPassword"
                         placeholder="Enter new password (leave blank to auto-generate)"
-                        className="w-56 rounded-md border border-border-default bg-surface px-2 py-1 text-xs"
+                        className="w-56 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs"
                       />
                       <button
                         type="submit"
-                        className="rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
+                        className="rounded-xl border border-border px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-surface-soft"
                       >
                         Change Password
                       </button>

@@ -24,27 +24,28 @@ export function ConfirmDeleteButton({ formId, children }: ConfirmDeleteButtonPro
       <button
         type="button"
         onClick={handleTrigger}
-        className="rounded-md border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+        aria-label={`Delete item ${formId}`}
+        className="rounded-xl border border-danger/45 bg-surface px-2.5 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger/12"
       >
         {children}
       </button>
 
       {confirmOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-dark/30 p-4">
-          <div className="max-w-sm rounded-xl border border-border-default bg-surface p-5 shadow-lg">
+          <div className="max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-text-default">Confirm Delete</h3>
             <p className="mb-4 text-sm text-text-muted">Are you sure you want to delete? This action cannot be undone.</p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-md border border-border-default px-3 py-1.5 text-xs font-semibold text-text-default hover:bg-brand-secondary"
+                className="rounded-xl border border-border px-3 py-1.5 text-xs font-semibold text-text-default hover:bg-surface-soft"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700"
+                className="rounded-xl bg-danger px-3 py-1.5 text-xs font-semibold text-white hover:bg-danger/90"
               >
                 Confirm Delete
               </button>

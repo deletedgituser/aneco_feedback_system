@@ -5,11 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { logAuditEvent } from "@/lib/audit";
 import { KioskQuestionForm } from "@/components/kiosk/kiosk-question-form";
 
-type KioskQuestion = {
-  questionId: number;
-  label: string;
-};
-
 export default async function KioskFormPage({
   params,
   searchParams,
@@ -123,12 +118,12 @@ export default async function KioskFormPage({
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-5 sm:py-7">
-      <header className="rounded-xl border border-border-default bg-surface p-3 shadow-sm sm:p-4">
+    <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-8 sm:px-5 sm:py-9">
+      <header className="rounded-2xl border border-border bg-surface p-4 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)] sm:p-5">
         <div className="mb-2 flex items-center justify-between gap-3">
           <Link
             href={returnUrl}
-            className="inline-flex rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-text-default hover:bg-brand-secondary"
+            className="inline-flex rounded-xl border border-border px-2.5 py-1.5 text-xs font-semibold text-text-default hover:bg-surface-soft"
           >
             Back
           </Link>
@@ -138,7 +133,7 @@ export default async function KioskFormPage({
             alt="ANECO logo"
             width={52}
             height={52}
-            className="h-12 w-12 rounded-md object-contain"
+            className="h-12 w-12 rounded-xl bg-surface-soft p-1 object-contain"
             priority
           />
         </div>
@@ -146,7 +141,7 @@ export default async function KioskFormPage({
           <h1 className="text-lg font-bold tracking-tight text-text-default sm:text-xl">{activeForm.title}</h1>
         </div>
         <p className="text-sm text-text-muted">{activeForm.description}</p>
-        <div className="mt-3 rounded-lg border border-border-default bg-brand-primary-soft px-3 py-2 text-xs text-text-default">
+        <div className="mt-3 rounded-2xl border border-border bg-surface-soft px-3 py-2 text-xs text-text-default">
           <p className="font-semibold">{text.ratingGuideTitle}</p>
           <p className="mt-0.5">{text.ratingGuideBody}</p>
         </div>
@@ -156,7 +151,6 @@ export default async function KioskFormPage({
         activeForm={activeForm}
         initialUserName={query.userName ?? ""}
         initialAssistedEmployee={query.assistedEmployee ?? ""}
-        returnUrl={returnUrl}
         text={text}
         submitFeedback={submitFeedback}
       />

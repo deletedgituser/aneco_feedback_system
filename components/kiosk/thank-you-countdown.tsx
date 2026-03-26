@@ -1,14 +1,39 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type ThankYouCountdownProps = {
-  secondsLeft: number;
   isBisaya: boolean;
   fillMoreHref: string;
+  initialSeconds?: number;
+  redirectHref?: string;
 };
 
-export function ThankYouCountdown({ secondsLeft, isBisaya, fillMoreHref }: ThankYouCountdownProps) {
+export function ThankYouCountdown({
+  isBisaya,
+  fillMoreHref,
+  initialSeconds = 5,
+  redirectHref = "/kiosk",
+}: ThankYouCountdownProps) {
+  const router = useRouter();
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setSecondsLeft((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (secondsLeft === 0) {
+      router.push(redirectHref);
+    }
+  }, [secondsLeft, router, redirectHref]);
+
   return (
     <div className="relative space-y-4 text-center">
       <h1 className="text-3xl font-semibold text-text-default">
@@ -19,7 +44,7 @@ export function ThankYouCountdown({ secondsLeft, isBisaya, fillMoreHref }: Thank
       </p>
       <Link
         href={fillMoreHref}
-        className="inline-flex rounded-lg bg-brand-primary-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary"
+        className="inline-flex rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
       >
         {isBisaya ? "Puno ug laing feedback" : "Fill more feedback"}
       </Link>

@@ -79,18 +79,18 @@ export default async function AdminLogsPage() {
   };
 
   return (
-    <section>
-      <h1 className="mb-4 text-xl font-semibold text-text-default">System Logs</h1>
-      <div className="space-y-2">
+    <section className="space-y-5">
+      <h1 className="text-2xl font-semibold text-text-default">System Logs</h1>
+      <div className="space-y-3">
         {logs.map((log) => (
-          <article key={log.logId} className="rounded-lg border border-border-default bg-surface p-3 text-sm">
+          <article key={log.logId} className="rounded-2xl border border-border bg-surface-soft p-4 text-sm">
             <p className="font-medium text-text-default">{log.actionType}</p>
             <p className="text-text-muted">
               Actor: {formatActor(log)} | Target: {formatTarget(log)}
             </p>
           </article>
         ))}
-        {logs.length === 0 ? <p className="text-sm text-text-muted">No audit logs yet.</p> : null}
+        {logs.length === 0 ? <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-text-muted">No audit logs yet.</p> : null}
       </div>
     </section>
   );

@@ -11,10 +11,10 @@ type NavbarProps = {
 
 export function Navbar({ title, subtitle, actions, profile }: NavbarProps) {
   return (
-    <header className="rounded-2xl border border-border bg-surface p-4 shadow-sm md:p-5">
+    <header className="rounded-2xl border border-border bg-surface p-6 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-text-primary">{title}</h1>
+          <h1 className="text-2xl font-semibold text-text-primary">{title}</h1>
           {subtitle ? <p className="mt-1 text-sm text-text-secondary">{subtitle}</p> : null}
         </div>
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">

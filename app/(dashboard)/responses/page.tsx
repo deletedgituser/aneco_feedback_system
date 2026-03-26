@@ -43,36 +43,36 @@ export default async function ResponsesPage({
   });
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-text-default">Form Responses</h1>
+        <h1 className="text-2xl font-semibold text-text-default">Form Responses</h1>
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={buildResponsesHref("all")}
-            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+            className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
               statusFilter === "all"
-                ? "border-border-default bg-brand-secondary text-text-default"
-                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+                ? "border-primary bg-primary text-white"
+                : "border-border bg-surface text-text-default hover:bg-surface-soft"
             }`}
           >
             All
           </Link>
           <Link
             href={buildResponsesHref("active")}
-            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+            className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
               statusFilter === "active"
-                ? "border-border-default bg-brand-secondary text-text-default"
-                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+                ? "border-primary bg-primary text-white"
+                : "border-border bg-surface text-text-default hover:bg-surface-soft"
             }`}
           >
             Active
           </Link>
           <Link
             href={buildResponsesHref("inactive")}
-            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+            className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
               statusFilter === "inactive"
-                ? "border-border-default bg-brand-secondary text-text-default"
-                : "border-border-default bg-surface text-text-default hover:bg-brand-primary-soft"
+                ? "border-primary bg-primary text-white"
+                : "border-border bg-surface text-text-default hover:bg-surface-soft"
             }`}
           >
             Inactive
@@ -80,11 +80,11 @@ export default async function ResponsesPage({
         </div>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {forms.map((form) => (
           <article
             key={form.formId}
-            className={`flex h-full flex-col rounded-lg border border-border-default p-4 ${
+            className={`flex h-full flex-col rounded-2xl border border-border p-5 ${
               form.isActive ? "bg-surface" : "bg-surface-muted"
             }`}
           >
@@ -94,12 +94,12 @@ export default async function ResponsesPage({
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
               <span
                 className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                  form.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                  form.isActive ? "bg-success/20 text-success" : "bg-danger/18 text-danger"
                 }`}
               >
                 {form.isActive ? "Active" : "Inactive"}
               </span>
-              <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold text-text-default">
+              <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border">
                 {form._count.feedbacks} submissions
               </span>
             </div>
@@ -107,7 +107,7 @@ export default async function ResponsesPage({
             <div className="mt-4">
               <Link
                 href={`/responses/${form.formId}`}
-                className="inline-flex rounded-md border border-border-default px-3 py-2 text-sm font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
+                className="inline-flex rounded-xl border border-border px-3 py-2 text-sm font-semibold text-primary hover:bg-surface-soft"
               >
                 Open Form Responses
               </Link>
@@ -116,7 +116,7 @@ export default async function ResponsesPage({
         ))}
 
         {forms.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border-default p-6 text-sm text-text-muted md:col-span-2">
+          <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-text-muted md:col-span-2">
             No forms found yet.
           </p>
         ) : null}

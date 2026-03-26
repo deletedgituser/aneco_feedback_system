@@ -17,7 +17,7 @@ export function Dropdown({ open, children, className }: DropdownProps) {
   return (
     <div
       className={cn(
-        "absolute right-0 top-[calc(100%+0.5rem)] z-40 min-w-48 rounded-2xl border border-border bg-surface/85 p-2 shadow-sm backdrop-blur-sm",
+        "absolute right-0 top-[calc(100%+0.5rem)] z-40 min-w-48 rounded-2xl border border-border bg-surface p-2.5 shadow-lg",
         className,
       )}
     >

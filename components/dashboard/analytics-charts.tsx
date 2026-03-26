@@ -15,8 +15,8 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const fallbackChartPalette = {
-  primary: "#c2410c",
-  success: "#15803d",
+  primary: "#3e5f5c",
+  success: "#d4a017",
 };
 
 function formatDateLabel(dateText: string): string {
@@ -247,7 +247,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-border-default bg-surface p-4">
+    <section className="space-y-6 rounded-2xl border border-border bg-surface p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
@@ -258,7 +258,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               id="form-filter"
               value={selectedForm}
               onChange={(event) => setSelectedForm(event.target.value)}
-              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
+              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
             >
               <option value="all">All forms</option>
               {forms.map((form) => (
@@ -277,7 +277,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               type="date"
               value={fromDate}
               onChange={(event) => setFromDate(event.target.value)}
-              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
+              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
             />
           </div>
           <div className="space-y-1">
@@ -289,7 +289,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               type="date"
               value={toDate}
               onChange={(event) => setToDate(event.target.value)}
-              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
+              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
             />
           </div>
           <div className="space-y-1">
@@ -301,7 +301,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               value={assistedEmployee}
               onChange={(event) => setAssistedEmployee(event.target.value)}
               placeholder="Name"
-              className="rounded-md border border-border-default bg-surface px-3 py-2 text-sm text-text-default"
+              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
             />
           </div>
           <button
@@ -312,7 +312,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               setToDate("");
               setAssistedEmployee("");
             }}
-            className="rounded-md border border-border-default px-3 py-2 text-sm font-semibold text-text-default hover:bg-brand-secondary"
+            className="rounded-xl border border-border px-3 py-2.5 text-sm font-semibold text-text-default hover:bg-surface-soft"
           >
             Reset
           </button>
@@ -321,13 +321,13 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         <div className="flex flex-wrap items-center gap-2">
           <a
             href={exportHref("summary", "excel")}
-            className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
+            className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default hover:bg-surface-soft"
           >
             Summary Excel
           </a>
           <a
             href={exportHref("summary", "pdf")}
-            className="rounded-md border border-border-default px-3 py-2 text-xs font-semibold text-text-default hover:bg-brand-secondary"
+            className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default hover:bg-surface-soft"
           >
             Summary PDF
           </a>
@@ -337,9 +337,9 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
       {loading ? <p className="text-xs text-text-muted">Loading analytics...</p> : null}
       {errorMessage ? <p className="text-xs text-error-fg">{errorMessage}</p> : null}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-border-default p-3">
-          <h2 className="mb-2 text-sm font-semibold text-text-default">Submission Trend</h2>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-surface-soft p-4">
+          <h2 className="mb-3 text-sm font-semibold text-text-default">Submission Trend</h2>
           {hasTrendData ? (
             <div className="h-72">
               <Bar
@@ -367,14 +367,14 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               />
             </div>
           ) : (
-            <p className="rounded-md border border-dashed border-border-default p-8 text-center text-sm text-text-muted">
+            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-text-muted">
               No submissions found for the current filters.
             </p>
           )}
         </div>
 
-        <div className="rounded-lg border border-border-default p-3">
-          <h2 className="mb-2 text-sm font-semibold text-text-default">Form Ratings</h2>
+        <div className="rounded-2xl border border-border bg-surface-soft p-4">
+          <h2 className="mb-3 text-sm font-semibold text-text-default">Form Ratings</h2>
           {hasPerFormData ? (
             <div className="h-72">
               <Bar
@@ -410,25 +410,25 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
               />
             </div>
           ) : (
-            <p className="rounded-md border border-dashed border-border-default p-8 text-center text-sm text-text-muted">
+            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-text-muted">
               No form rating data for the current filters.
             </p>
           )}
         </div>
       </div>
 
-      <div className="rounded-lg border border-border-default p-3">
-        <h2 className="mb-3 text-sm font-semibold text-text-default">Form Health Snapshot</h2>
+      <div className="rounded-2xl border border-border bg-surface-soft p-4">
+        <h2 className="mb-4 text-sm font-semibold text-text-default">Form Health Snapshot</h2>
         <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
-          <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-700">Positive: {assessmentSummary.positive}</span>
-          <span className="rounded-full bg-amber-100 px-2 py-1 text-amber-700">Neutral: {assessmentSummary.neutral}</span>
-          <span className="rounded-full bg-rose-100 px-2 py-1 text-rose-700">Negative: {assessmentSummary.negative}</span>
+          <span className="rounded-full bg-success/18 px-2.5 py-1 text-success">Positive: {assessmentSummary.positive}</span>
+          <span className="rounded-full bg-warning/20 px-2.5 py-1 text-text-primary">Neutral: {assessmentSummary.neutral}</span>
+          <span className="rounded-full bg-danger/18 px-2.5 py-1 text-danger">Negative: {assessmentSummary.negative}</span>
         </div>
 
         {formAssessments.length > 0 ? (
           <ul className="space-y-2">
             {formAssessments.map((row) => (
-              <li key={row.formId} className="flex items-center justify-between rounded-md bg-surface-muted px-3 py-2 text-sm">
+              <li key={row.formId} className="flex items-center justify-between rounded-xl bg-surface px-3 py-2 text-sm">
                 <span className="font-medium text-text-default">{row.title}</span>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border-default">
@@ -437,11 +437,11 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-semibold whitespace-nowrap ${
                       row.status === "positive"
-                        ? "bg-emerald-100 text-emerald-700"
+                        ? "bg-success/18 text-success"
                         : row.status === "neutral"
-                          ? "bg-amber-100 text-amber-700"
+                          ? "bg-warning/20 text-text-primary"
                           : row.status === "negative"
-                            ? "bg-rose-100 text-rose-700"
+                            ? "bg-danger/18 text-danger"
                             : "bg-surface-muted text-text-muted"
                     }`}
                   >
@@ -452,7 +452,7 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
             ))}
           </ul>
         ) : (
-          <p className="rounded-md border border-dashed border-border-default p-6 text-center text-sm text-text-muted">
+          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-text-muted">
             No form assessments available for the current filters.
           </p>
         )}
