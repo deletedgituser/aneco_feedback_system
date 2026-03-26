@@ -84,7 +84,7 @@ export function KioskQuestionForm({
   };
 
   return (
-    <form action={submitFeedback} method="post" onSubmit={handleSubmit} className="space-y-4">
+    <form action={submitFeedback} onSubmit={handleSubmit} className="space-y-4">
       {toast ? <FlashToast type={toast.type} message={toast.message} /> : null}
 
       <section className="rounded-xl border border-border-default bg-surface p-4 shadow-sm sm:p-5">

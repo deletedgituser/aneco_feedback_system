@@ -207,10 +207,13 @@ export default async function AdminAccountsPage({
 
     const passwordHash = await hashPassword(nextPassword);
 
-    await prisma.personnel.update({
+    const updatedPersonnel = await prisma.personnel.update({
       where: { personnelId },
       data: {
         passwordHash,
+      },
+      select: {
+        passwordHash: true,
       },
     });
 
@@ -221,10 +224,15 @@ export default async function AdminAccountsPage({
       },
     });
 
+    const verifyAfter = await verifyPassword(nextPassword, updatedPersonnel.passwordHash);
+    if (!verifyAfter) {
+      redirectWithToast("error", "Failed to confirm updated password. Please try again.");
+    }
+
     await logAuditEvent({
       actorRole: "admin",
       actorId: session.adminId,
-      actionType: "personnel.password.reset",
+      actionType: explicitPassword ? "personnel.password.changed" : "personnel.password.reset",
       targetType: "personnel",
       targetId: personnelId,
       metadata: {
@@ -232,7 +240,11 @@ export default async function AdminAccountsPage({
       },
     });
 
-    redirectWithToast("success", "Personnel password has been reset.");
+    const successMessage = explicitPassword
+      ? "Personnel password has been updated."
+      : `Personnel temporary password has been generated: ${nextPassword}`;
+
+    redirectWithToast("success", successMessage);
   }
 
   return (
@@ -314,14 +326,14 @@ export default async function AdminAccountsPage({
                       <input type="hidden" name="personnelId" value={user.personnelId} />
                       <input
                         name="newPassword"
-                        placeholder="New password"
-                        className="w-36 rounded-md border border-border-default bg-surface px-2 py-1 text-xs"
+                        placeholder="Enter new password (leave blank to auto-generate)"
+                        className="w-56 rounded-md border border-border-default bg-surface px-2 py-1 text-xs"
                       />
                       <button
                         type="submit"
                         className="rounded-md border border-border-default px-2 py-1 text-xs font-semibold text-brand-primary-strong hover:bg-brand-primary-soft"
                       >
-                        Reset Password
+                        Change Password
                       </button>
                     </form>
                     <form action={deletePersonnelAction}>
