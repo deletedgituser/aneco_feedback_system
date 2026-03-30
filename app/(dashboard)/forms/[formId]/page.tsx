@@ -1,11 +1,12 @@
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSessionPayload } from "@/lib/auth/session";
 import { logAuditEvent } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { FlashToast } from "@/components/ui/flash-toast";
 import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
-import Link from "next/link";
 
 type PageProps = {
   params: Promise<{ formId: string }>;
@@ -197,6 +198,15 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
 
   return (
     <section className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/forms"
+          className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default transition-colors duration-150 hover:bg-surface-soft"
+        >
+          <ChevronLeft size={16} />
+          Back
+        </Link>
+      </div>
       {query.toastType && query.toastMessage ? <FlashToast type={query.toastType} message={query.toastMessage} /> : null}
 
       <header className="rounded-2xl border border-border bg-surface p-6 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)]">

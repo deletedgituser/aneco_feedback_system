@@ -1,14 +1,9 @@
 import { LoginForm } from "@/components/auth/login-form";
-import { FlashToast } from "@/components/ui/flash-toast";
 import { getSessionPayload, isSessionActive } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ toastType?: "success" | "error"; toastMessage?: string }>;
-}) {
+export default async function LoginPage() {
   const session = await getSessionPayload();
   if (session?.sid) {
     const active = await isSessionActive(session.sid);
@@ -16,8 +11,6 @@ export default async function LoginPage({
       redirect("/dashboard");
     }
   }
-
-  const query = await searchParams;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-10">
@@ -29,11 +22,6 @@ export default async function LoginPage({
             <p className="text-xs uppercase tracking-wide text-text-muted">Secure access for admin and personnel</p>
           </div>
         </div>
-        {query.toastType && query.toastMessage ? (
-          <div className="mb-4">
-            <FlashToast type={query.toastType} message={query.toastMessage} />
-          </div>
-        ) : null}
         <p className="mt-1 text-sm leading-relaxed text-text-muted">Shared login for administrator and personnel accounts.</p>
         <div className="mt-6">
           <LoginForm />

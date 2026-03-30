@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { FormResponseModalList } from "@/components/dashboard/form-response-modal-list";
+import { computeSentiment } from "@/lib/sentiment";
+import { ResponsesPageTabs } from "@/components/responses/ResponsesPageTabs";
 
 type FormResponsesPageProps = {
   params: Promise<{ formId: string }>;
@@ -29,23 +32,6 @@ function parsePage(value: string | undefined): number {
     return 1;
   }
   return parsed;
-}
-
-function scoreLabel(score: number): string {
-  switch (score) {
-    case 1:
-      return "Very Dissatisfied";
-    case 2:
-      return "Dissatisfied";
-    case 3:
-      return "Neutral";
-    case 4:
-      return "Satisfied";
-    case 5:
-      return "Very Satisfied";
-    default:
-      return `Score ${score}`;
-  }
 }
 
 export default async function FormResponsesPage({ params, searchParams }: FormResponsesPageProps) {
@@ -169,26 +155,44 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
     prisma.response.count({ where: { answerValue: 5, feedback: feedbackWhere } }),
   ]);
 
-  const submissions = feedbackRows.map((feedback) => ({
-    feedbackId: feedback.feedbackId,
-    userName: feedback.userName,
-    assistedEmployee: feedback.assistedEmployee,
-    submittedAt: feedback.submittedAt.toISOString(),
-    responses: feedback.responses.map((response) => ({
-      responseId: response.responseId,
-      answerValue: response.answerValue,
-      questionLabel: response.question.label,
-    })),
-  }));
+  // Add sentiment calculation for each submission
+  const submissions = feedbackRows.map((feedback) => {
+    // Filter and convert answer values to numbers, excluding null/undefined
+    const answerValues = feedback.responses
+      .map((response) => response.answerValue)
+      .filter((value) => value !== null && value !== undefined)
+      .map((value) => Number(value));
+    
+    const sentimentResult = computeSentiment(answerValues);
+    const sentiment = sentimentResult.sentiment;
+
+    return {
+      feedbackId: feedback.feedbackId,
+      userName: feedback.userName,
+      assistedEmployee: feedback.assistedEmployee,
+      submittedAt: feedback.submittedAt.toISOString(),
+      responses: feedback.responses.map((response) => ({
+        responseId: response.responseId,
+        answerValue: response.answerValue,
+        questionLabel: response.question.label,
+      })),
+      sentiment, // Add sentiment to each submission
+    };
+  });
 
   const questionAnalytics = questionRows.map((question) => {
     const totalResponsesForQuestion = question.responses.length;
     const totalScore = question.responses.reduce((sum, row) => sum + row.answerValue, 0);
+    const scores = question.responses.map((r) => r.answerValue);
+    const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
+    const lowestScore = scores.length > 0 ? Math.min(...scores) : 0;
     return {
       questionId: question.questionId,
       label: question.label,
-      totalResponses: totalResponsesForQuestion,
       averageRating: totalResponsesForQuestion > 0 ? Number((totalScore / totalResponsesForQuestion).toFixed(2)) : 0,
+      highestScore,
+      lowestScore,
+      totalResponses: totalResponsesForQuestion,
     };
   });
 
@@ -221,8 +225,20 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
     return `/responses/${formId}?${params.toString()}`;
   }
 
+  const prevPageHref = currentPage > 1 ? makePageHref(currentPage - 1) : undefined;
+  const nextPageHref = currentPage < totalPages ? makePageHref(currentPage + 1) : undefined;
+
   return (
     <section className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/responses"
+          className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default transition-colors duration-150 hover:bg-surface-soft"
+        >
+          <ChevronLeft size={16} />
+          Back
+        </Link>
+      </div>
       <header className="rounded-2xl border border-border bg-surface-soft p-6">
         <h1 className="text-2xl font-semibold text-text-default">{form.title}</h1>
         <p className="mt-1 text-sm text-text-muted">{form.description ?? "No description"}</p>
@@ -247,45 +263,6 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
         <article className="rounded-2xl border border-border bg-surface-soft p-4">
           <p className="text-xs uppercase tracking-wide text-text-muted">Latest Order</p>
           <p className="mt-1 text-xl font-semibold text-text-default">Newest First</p>
-        </article>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <article className="rounded-2xl border border-border bg-surface p-5">
-          <h2 className="mb-2 text-sm font-semibold text-text-default">Rating Distribution</h2>
-          <ul className="space-y-2">
-            {ratingDistribution.map((row) => (
-              <li key={row.score} className="flex items-center justify-between rounded-xl bg-surface-soft px-3 py-2 text-sm">
-                <span className="font-medium text-text-default">{scoreLabel(row.score)}</span>
-                <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border">
-                  {row.count}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </article>
-        <article className="rounded-2xl border border-border bg-surface p-5">
-          <h2 className="mb-2 text-sm font-semibold text-text-default">Per-Question Performance</h2>
-          <div className="space-y-2">
-            {questionAnalytics.map((question) => (
-              <div key={question.questionId} className="rounded-xl bg-surface-soft p-3">
-                <p className="text-sm font-medium text-text-default">{question.label}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full bg-surface px-2 py-1 font-semibold text-text-default ring-1 ring-border">
-                    Avg: {question.averageRating.toFixed(2)}
-                  </span>
-                  <span className="rounded-full bg-surface px-2 py-1 font-semibold text-text-default ring-1 ring-border">
-                    Responses: {question.totalResponses}
-                  </span>
-                </div>
-              </div>
-            ))}
-            {questionAnalytics.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-border p-4 text-sm text-text-muted">
-                No questions found for this form.
-              </p>
-            ) : null}
-          </div>
         </article>
       </section>
 
@@ -358,42 +335,7 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
       </section>
 
       {submissions.length > 0 ? (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-text-default">Submissions List</h2>
-            <p className="text-xs text-text-muted">Showing latest submissions first</p>
-          </div>
-
-          <FormResponseModalList submissions={submissions} />
-
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-border p-4">
-            <p className="text-sm text-text-muted">
-              Page {currentPage} of {totalPages}
-            </p>
-            <div className="flex items-center gap-2">
-              {currentPage > 1 ? (
-                <a
-                  href={makePageHref(currentPage - 1)}
-                  className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default hover:bg-surface-soft"
-                >
-                  Previous
-                </a>
-              ) : (
-                <span className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-muted opacity-60">Previous</span>
-              )}
-              {currentPage < totalPages ? (
-                <a
-                  href={makePageHref(currentPage + 1)}
-                  className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default hover:bg-surface-soft"
-                >
-                  Next
-                </a>
-              ) : (
-                <span className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-muted opacity-60">Next</span>
-              )}
-            </div>
-          </div>
-        </section>
+        <ResponsesPageTabs submissions={submissions} stats={questionAnalytics} distribution={ratingDistribution} currentPage={currentPage} totalPages={totalPages} prevPageHref={prevPageHref} nextPageHref={nextPageHref} />
       ) : (
         <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-text-muted">
           No responses yet for this form.

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { SentimentBadge } from "@/components/ui/SentimentBadge";
+import type { SentimentType } from "@/types";
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -8,6 +10,13 @@ function parseStatusFilter(value: string | undefined): StatusFilter {
     return value;
   }
   return "all";
+}
+
+function computeSentiment(averageRating: number | null): SentimentType {
+  if (averageRating === null) return "neutral";
+  if (averageRating >= 4) return "positive";
+  if (averageRating <= 2) return "negative";
+  return "neutral";
 }
 
 export default async function ResponsesPage({
@@ -39,7 +48,38 @@ export default async function ResponsesPage({
           feedbacks: true,
         },
       },
+      feedbacks: {
+        select: {
+          responses: {
+            select: {
+              answerValue: true,
+            },
+          },
+        },
+      },
     },
+  });
+
+  // Calculate average rating for each form
+  const formsWithSentiment = forms.map((form) => {
+    const allRatings: number[] = [];
+    form.feedbacks.forEach((feedback) => {
+      feedback.responses.forEach((response) => {
+        allRatings.push(response.answerValue);
+      });
+    });
+
+    const averageRating = allRatings.length > 0 ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length : null;
+    const sentiment = computeSentiment(averageRating);
+
+    return {
+      formId: form.formId,
+      title: form.title,
+      description: form.description,
+      isActive: form.isActive,
+      feedbackCount: form._count.feedbacks,
+      sentiment,
+    };
   });
 
   return (
@@ -81,7 +121,7 @@ export default async function ResponsesPage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {forms.map((form) => (
+        {formsWithSentiment.map((form) => (
           <article
             key={form.formId}
             className={`flex h-full flex-col rounded-2xl border border-border p-5 ${
@@ -92,15 +132,18 @@ export default async function ResponsesPage({
             <p className="mt-1 flex-grow text-sm text-text-muted">{form.description ?? "No description"}</p>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-              <span
-                className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                  form.isActive ? "bg-success/20 text-success" : "bg-danger/18 text-danger"
-                }`}
-              >
-                {form.isActive ? "Active" : "Inactive"}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                    form.isActive ? "bg-success/20 text-success" : "bg-danger/18 text-danger"
+                  }`}
+                >
+                  {form.isActive ? "Active" : "Inactive"}
+                </span>
+                {form.feedbackCount > 0 && <SentimentBadge sentiment={form.sentiment} />}
+              </div>
               <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border">
-                {form._count.feedbacks} submissions
+                {form.feedbackCount} submissions
               </span>
             </div>
 
@@ -115,7 +158,7 @@ export default async function ResponsesPage({
           </article>
         ))}
 
-        {forms.length === 0 ? (
+        {formsWithSentiment.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-text-muted md:col-span-2">
             No forms found yet.
           </p>

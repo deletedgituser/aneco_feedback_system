@@ -21,7 +21,7 @@ export function LogoutButton({ label = "Logout", className = "", iconOnly = fals
       await fetch("/api/auth/logout", {
         method: "POST",
       });
-      router.push("/login?toastType=success&toastMessage=Logged+out+successfully");
+      router.push("/login");
       router.refresh();
     } finally {
       setLoading(false);
