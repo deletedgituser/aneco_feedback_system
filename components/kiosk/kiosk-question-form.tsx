@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FlashToast } from "@/components/ui/flash-toast";
 
 type KioskQuestion = {
@@ -48,6 +49,7 @@ export function KioskQuestionForm({
   text,
   submitFeedback,
 }: KioskFormProps) {
+  const router = useRouter();
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [invalidQuestions, setInvalidQuestions] = useState<number[]>([]);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -58,6 +60,10 @@ export function KioskQuestionForm({
     if (invalidQuestions.includes(questionId)) {
       setInvalidQuestions((prev) => prev.filter((id) => id !== questionId));
     }
+  };
+
+  const handleCancel = () => {
+    router.push("/kiosk");
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -157,7 +163,14 @@ export function KioskQuestionForm({
         })}
       </section>
 
-      <div>
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handleCancel}
+          className="rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-default transition hover:bg-surface-soft"
+        >
+          Cancel
+        </button>
         <button
           type="submit"
           className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { FlashToast } from "@/components/ui/flash-toast";
@@ -58,11 +59,14 @@ export default async function DashboardLayout({
                 <Breadcrumbs />
               </div>
               {userInfo ? (
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-border bg-surface-soft px-3 py-2 text-sm font-medium text-text-default">
+                <Link
+                  href="/dashboard/profile"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-border bg-surface-soft px-3 py-2 text-sm font-medium text-text-default hover:bg-surface hover:text-primary"
+                >
                   <User size={16} />
                   <span>{userInfo.role === "admin" ? "Admin" : "Personnel"}</span>
                   <span className="text-text-muted">{userInfo.displayName}</span>
-                </div>
+                </Link>
               ) : null}
             </div>
           </header>

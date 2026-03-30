@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 type LoginResponse = {
   message?: string;
@@ -12,6 +13,7 @@ export function LoginForm() {
   const router = useRouter();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,8 +39,7 @@ export function LoginForm() {
       }
 
       const redirectUrl = data.redirectTo ? data.redirectTo : "/dashboard";
-      const separator = redirectUrl.includes("?") ? "&" : "?";
-      router.push(`${redirectUrl}${separator}toastType=success&toastMessage=Logged+in+successfully`);
+      router.push(redirectUrl);
       router.refresh();
     } catch {
       setError("Unable to login right now. Please try again.");
@@ -62,13 +63,22 @@ export function LoginForm() {
 
       <label className="block space-y-1">
         <span className="text-sm font-medium text-text-default">Password</span>
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-text-default outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/25"
-          required
-        />
+        <div className="relative flex items-center">
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 pr-10 text-sm text-text-default outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/25"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 text-text-muted hover:text-text-default transition"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
       </label>
 
       {error ? <p className="text-sm text-error-fg">{error}</p> : null}

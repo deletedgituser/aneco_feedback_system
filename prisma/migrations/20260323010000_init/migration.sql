@@ -9,6 +9,7 @@ CREATE TABLE `admins` (
 
 CREATE TABLE `personnel` (
   `personnel_id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(191) NOT NULL,
   `name` VARCHAR(191) NOT NULL,
   `email` VARCHAR(191) NOT NULL,
   `password_hash` VARCHAR(191) NOT NULL,
@@ -19,6 +20,7 @@ CREATE TABLE `personnel` (
   `created_at` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
   `updated_at` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`personnel_id`),
+  UNIQUE INDEX `personnel_username_key` (`username`),
   UNIQUE INDEX `personnel_email_key` (`email`),
   CONSTRAINT `personnel_created_by_admin_fkey`
     FOREIGN KEY (`created_by_admin`) REFERENCES `admins`(`admin_id`)

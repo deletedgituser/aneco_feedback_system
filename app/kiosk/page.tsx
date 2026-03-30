@@ -4,11 +4,18 @@ import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export default async function KioskLandingPage() {
-  const forms = await prisma.form.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "desc" },
-    take: 30,
-  });
+  let forms: Array<{ formId: number; title: string; description: string | null; language: string }> = [];
+
+  try {
+    forms = await prisma.form.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+    });
+  } catch (error) {
+    console.error("KioskLandingPage: Prisma query failed", error);
+    forms = [];
+  }
 
   return (
     <main className="flex min-h-screen w-full items-start justify-center px-4 py-10 text-text-default">

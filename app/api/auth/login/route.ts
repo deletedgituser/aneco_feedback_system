@@ -20,16 +20,25 @@ export async function POST(request: Request) {
   }
 
   const usernameOrEmail = body.usernameOrEmail.trim();
-  const personnelEmail = usernameOrEmail.toLowerCase();
+  const normalizedInput = usernameOrEmail.toLowerCase();
 
   const [admin, personnel] = await Promise.all([
     prisma.admin.findUnique({
       where: { username: usernameOrEmail },
     }),
-    prisma.personnel.findUnique({
-      where: { email: personnelEmail },
+    prisma.personnel.findFirst({
+      where: {
+        OR: [
+          { email: normalizedInput },
+          { username: usernameOrEmail },
+          { username: normalizedInput },
+          { name: usernameOrEmail },
+          { name: normalizedInput },
+        ],
+      },
     }),
   ]);
+
 
   if (admin) {
     const valid = await verifyPassword(body.password, admin.passwordHash);
@@ -71,7 +80,7 @@ export async function POST(request: Request) {
         actorRole: "system",
         actionType: "auth.login.failed",
         targetType: "personnel",
-        metadata: { email: personnelEmail },
+        metadata: { email: normalizedInput },
       });
       return NextResponse.json({ message: "Invalid credentials." }, { status: 401 });
     }
