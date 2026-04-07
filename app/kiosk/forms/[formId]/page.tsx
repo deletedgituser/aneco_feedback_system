@@ -41,6 +41,9 @@ export default async function KioskFormPage({
     questions: form.questions.map((question) => ({
       questionId: question.questionId,
       label: question.label,
+      description: question.description,
+      categoryPart: question.categoryPart,
+      isOverallSatisfaction: question.isOverallSatisfaction,
     })),
   };
   const returnUrl = query.returnUrl ? String(query.returnUrl) : "/kiosk";
@@ -55,6 +58,10 @@ export default async function KioskFormPage({
     assistedEmployee: isBisaya ? "Gi-assist nga empleyado (opsyonal)" : "Employee assisted (optional)",
     questionLabel: isBisaya ? "Pangutana" : "Question",
     of: isBisaya ? "sa" : "of",
+    commentsLabel: isBisaya ? "Komento o sugyot (opsyonal)" : "Comments or suggestions (optional)",
+    commentsPlaceholder: isBisaya
+      ? "Isulat dinhi ang imong komento o sugyot..."
+      : "Write your comments or suggestions here...",
     submit: isBisaya ? "I-submit ang feedback" : "Submit feedback",
   };
 
@@ -63,6 +70,7 @@ export default async function KioskFormPage({
 
     const userName = String(formData.get("userName") ?? "").trim() || null;
     const assistedEmployee = String(formData.get("assistedEmployee") ?? "").trim() || null;
+    const comments = String(formData.get("comments") ?? "").trim() || null;
 
     const answers: { questionId: number; answerValue: number }[] = [];
     for (const question of activeForm.questions) {
@@ -78,6 +86,7 @@ export default async function KioskFormPage({
         formId: activeForm.formId,
         userName,
         assistedEmployee,
+        comments,
       },
     });
 
@@ -138,12 +147,12 @@ export default async function KioskFormPage({
           />
         </div>
         <div className="mb-1 flex items-center justify-between">
-          <h1 className="text-lg font-bold tracking-tight text-text-default sm:text-xl">{activeForm.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-text-default sm:text-3xl">{activeForm.title}</h1>
         </div>
-        <p className="text-sm text-text-muted">{activeForm.description}</p>
-        <div className="mt-3 rounded-2xl border border-border bg-surface-soft px-3 py-2 text-xs text-text-default">
-          <p className="font-semibold">{text.ratingGuideTitle}</p>
-          <p className="mt-0.5">{text.ratingGuideBody}</p>
+        <p className="mt-2 text-lg text-text-secondary">{activeForm.description}</p>
+        <div className="mt-4 rounded-2xl border border-border bg-surface-soft px-4 py-3 text-sm text-text-default">
+          <p className="font-bold uppercase">{text.ratingGuideTitle}</p>
+          <p className="mt-1 text-base">{text.ratingGuideBody}</p>
         </div>
       </header>
 

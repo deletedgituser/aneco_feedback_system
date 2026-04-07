@@ -79,6 +79,9 @@ model Question {
   formId        Int          @map("form_id")
   type          QuestionType
   label         String
+  description   String?      @db.Text
+  categoryPart  String?      @map("category_part") @db.VarChar(120)
+  isOverallSatisfaction Boolean @default(false) @map("is_overall_satisfaction")
   displayOrder  Int          @map("display_order")
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamp(0)
@@ -95,6 +98,7 @@ model Feedback {
   formId            Int       @map("form_id")
   userName          String?   @map("user_name") @db.VarChar(100)
   assistedEmployee  String?   @map("assisted_employee") @db.VarChar(100)
+  comments          String?   @db.Text
   submittedAt       DateTime  @default(now()) @map("submitted_at") @db.Timestamp(0)
 
   form      Form       @relation(fields: [formId], references: [formId], onDelete: Restrict, onUpdate: Restrict)
