@@ -10,6 +10,7 @@ type SubmissionItem = {
   feedbackId: number;
   userName: string | null;
   assistedEmployee: string | null;
+  comments: string | null;
   submittedAt: string;
   sentiment: SentimentType;
   responses: Array<{

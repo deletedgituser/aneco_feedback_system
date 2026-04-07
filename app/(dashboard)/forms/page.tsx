@@ -7,6 +7,20 @@ import { redirect } from "next/navigation";
 import { FlashToast } from "@/components/ui/flash-toast";
 import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
 
+function getOverallQuestionContent(language: "en" | "bis") {
+  if (language === "bis") {
+    return {
+      label: "Kinatibuk-ang Katagbawan",
+      description: "Palihug i-rate ang imong kinatibuk-ang kasinatian.",
+    };
+  }
+
+  return {
+    label: "Overall Satisfaction",
+    description: "Please rate your overall experience.",
+  };
+}
+
 type StatusFilter = "all" | "active" | "inactive";
 
 function parseStatusFilter(value: string | undefined): StatusFilter {
@@ -65,27 +79,55 @@ export default async function FormsPage({
     const description = String(formData.get("description") ?? "").trim();
     const languageInput = String(formData.get("language") ?? "en").trim().toLowerCase();
     const language = languageInput === "bis" ? "bis" : "en";
-    const firstQuestion = String(formData.get("firstQuestion") ?? "").trim();
+    const starterQuestionsRaw = String(formData.get("starterQuestions") ?? "").trim();
 
-    if (!title || !firstQuestion) {
-      redirect("/forms?toastType=error&toastMessage=Title+and+first+question+are+required.");
+    const starterQuestions = starterQuestionsRaw
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .slice(0, 20);
+
+    if (!title) {
+      redirect("/forms?toastType=error&toastMessage=Title+is+required.");
     }
 
-    const createdForm = await prisma.form.create({
-      data: {
-        title,
-        description: description || null,
-        language,
-        createdByPersonnelId: personnelId,
-        questions: {
-          create: {
-            type: "smiley_rating",
-            label: firstQuestion,
-            displayOrder: 1,
-          },
+    const overallQuestion = getOverallQuestionContent(language);
+
+    const createdForm = await prisma.$transaction(async (tx) => {
+      const formRow = await tx.form.create({
+        data: {
+          title,
+          description: description || null,
+          language,
+          createdByPersonnelId: personnelId,
         },
-      },
-      select: { formId: true },
+        select: { formId: true },
+      });
+
+      if (starterQuestions.length > 0) {
+        await tx.question.createMany({
+          data: starterQuestions.map((label, index) => ({
+            formId: formRow.formId,
+            type: "smiley_rating",
+            label,
+            displayOrder: index + 1,
+          })),
+        });
+      }
+
+      await tx.question.create({
+        data: {
+          formId: formRow.formId,
+          type: "smiley_rating",
+          label: overallQuestion.label,
+          description: overallQuestion.description,
+          categoryPart: "Overall",
+          isOverallSatisfaction: true,
+          displayOrder: starterQuestions.length + 1,
+        },
+      });
+
+      return formRow;
     });
 
     await logAuditEvent({
@@ -284,12 +326,18 @@ export default async function FormsPage({
               className="h-24 w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
             />
 
-            <input
-              name="firstQuestion"
-              placeholder="First smiley question"
-              className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
-              required
-            />
+            <div>
+              <label htmlFor="starterQuestions" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Starter questions (optional)
+              </label>
+              <textarea
+                id="starterQuestions"
+                name="starterQuestions"
+                placeholder="One question per line"
+                className="h-28 w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm"
+              />
+              <p className="mt-1 text-xs text-text-muted">The form will always include a final Overall Satisfaction question automatically.</p>
+            </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <button

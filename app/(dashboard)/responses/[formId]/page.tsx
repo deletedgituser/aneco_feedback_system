@@ -106,6 +106,7 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
         feedbackId: true,
         userName: true,
         assistedEmployee: true,
+        comments: true,
         submittedAt: true,
         responses: {
           orderBy: {
@@ -170,6 +171,7 @@ export default async function FormResponsesPage({ params, searchParams }: FormRe
       feedbackId: feedback.feedbackId,
       userName: feedback.userName,
       assistedEmployee: feedback.assistedEmployee,
+      comments: feedback.comments,
       submittedAt: feedback.submittedAt.toISOString(),
       responses: feedback.responses.map((response) => ({
         responseId: response.responseId,

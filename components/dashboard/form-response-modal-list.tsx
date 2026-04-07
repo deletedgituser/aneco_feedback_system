@@ -8,6 +8,7 @@ type SubmissionItem = {
   feedbackId: number;
   userName: string | null;
   assistedEmployee: string | null;
+  comments: string | null;
   submittedAt: string;
   sentiment: SentimentType;
   responses: Array<{
@@ -93,6 +94,9 @@ export function FormResponseModalList({
                   Assisted employee:{" "}
                   {submission.assistedEmployee?.trim() ? submission.assistedEmployee : "Not specified"}
                 </p>
+                <p className="text-xs text-text-muted">
+                  Comments: {submission.comments?.trim() ? submission.comments : "No comments"}
+                </p>
               </div>
               <button
                 type="button"
@@ -142,6 +146,10 @@ export function FormResponseModalList({
                     {selectedSubmission.assistedEmployee?.trim()
                       ? selectedSubmission.assistedEmployee
                       : "Not specified"}
+                  </p>
+                  <p className="sm:col-span-2">
+                    <span className="font-semibold text-text-default">Comments:</span>{" "}
+                    {selectedSubmission.comments?.trim() ? selectedSubmission.comments : "No comments"}
                   </p>
                 </div>
 

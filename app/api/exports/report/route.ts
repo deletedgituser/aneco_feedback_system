@@ -14,6 +14,7 @@ type DetailedRow = {
   formTitle: string;
   userName: string;
   assistedEmployee: string;
+  comments: string;
   question: string;
   rating: number;
 };
@@ -161,6 +162,7 @@ export async function GET(request: NextRequest) {
       submittedAt: true,
       userName: true,
       assistedEmployee: true,
+      comments: true,
       form: {
         select: {
           formId: true,
@@ -189,6 +191,7 @@ export async function GET(request: NextRequest) {
         formTitle: feedback.form.title,
         userName: feedback.userName ?? "",
         assistedEmployee: feedback.assistedEmployee ?? "",
+        comments: feedback.comments ?? "",
         question: response.question.label,
         rating: response.answerValue,
       });
@@ -302,7 +305,7 @@ export async function GET(request: NextRequest) {
     lines.push("");
     for (const row of detailedRows) {
       lines.push(
-        `${row.submittedAt} | ${row.formTitle} | ${row.userName || "-"} | ${row.assistedEmployee || "-"} | ${row.question} | ${row.rating}`,
+        `${row.submittedAt} | ${row.formTitle} | ${row.userName || "-"} | ${row.assistedEmployee || "-"} | ${row.comments || "-"} | ${row.question} | ${row.rating}`,
       );
     }
   }
