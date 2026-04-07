@@ -47,3 +47,6 @@ next-env.d.ts
 # github and vscode
 .github
 .vscode
+
+ANECO_Feedback_System.docx
+ANECO_Feedback_System_Presentation.md

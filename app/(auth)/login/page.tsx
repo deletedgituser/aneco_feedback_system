@@ -18,7 +18,7 @@ export default async function LoginPage() {
         <div className="mb-6 flex items-center gap-3">
           <Image src="/logo.png" alt="ANECO logo" width={42} height={42} className="rounded-full bg-surface-soft p-1" />
           <div>
-            <h1 className="text-2xl font-semibold text-text-default">ANECO Survey System</h1>
+            <h1 className="text-xl font-semibold text-text-default">ANECO Feedback System</h1>
             <p className="text-xs uppercase tracking-wide text-text-muted">Secure access for admin and personnel</p>
           </div>
         </div>
