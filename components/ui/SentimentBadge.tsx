@@ -13,7 +13,7 @@ export function SentimentBadge({ sentiment }: SentimentBadgeProps) {
       case "positive":
         return { bg: "bg-success", icon: ThumbsUp, label: "Positive" };
       case "negative":
-        return { bg: "bg-error", icon: ThumbsDown, label: "Negative" };
+        return { bg: "bg-danger", icon: ThumbsDown, label: "Negative" };
       case "neutral":
         return { bg: "bg-warning", icon: Minus, label: "Neutral" };
       default:
