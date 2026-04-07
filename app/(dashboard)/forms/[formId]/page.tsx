@@ -364,7 +364,6 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
     redirect(`/forms/${parsedId}?toastType=success&toastMessage=Question+deleted.`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function moveQuestionAction(formData: FormData) {
     "use server";
 
@@ -581,6 +580,7 @@ export default async function FormDetailPage({ params, searchParams }: PageProps
             toastType={query.toastType}
             updateQuestionAction={updateQuestionAction}
             deleteQuestionAction={deleteQuestionAction}
+            moveQuestionAction={moveQuestionAction}
           />
         </div>
       </div>

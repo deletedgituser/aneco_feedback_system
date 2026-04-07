@@ -20,6 +20,7 @@ type FormDetailQuestionsClientProps = {
   toastType?: "success" | "error";
   updateQuestionAction: (formData: FormData) => Promise<void>;
   deleteQuestionAction: (formData: FormData) => Promise<void>;
+  moveQuestionAction: (formData: FormData) => Promise<void>;
 };
 
 export function FormDetailQuestionsClient({
@@ -28,6 +29,7 @@ export function FormDetailQuestionsClient({
   toastType,
   updateQuestionAction,
   deleteQuestionAction,
+  moveQuestionAction,
 }: FormDetailQuestionsClientProps) {
   const [isPending, setPending] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -42,6 +44,8 @@ export function FormDetailQuestionsClient({
     }
   };
 
+  const nonOverallQuestionIds = questions.filter((question) => !question.isOverallSatisfaction).map((question) => question.questionId);
+
   return (
     <>
       {toastType && toastMessage ? <FlashToast type={toastType} message={toastMessage} /> : null}
@@ -53,15 +57,22 @@ export function FormDetailQuestionsClient({
           </p>
         ) : (
           <ol className="space-y-2">
-            {questions.map((question) => (
-              <li key={question.questionId}>
-                <QuestionItemEditor
-                  question={question}
-                  onEdit={setEditingQuestion}
-                  deleteAction={deleteQuestionAction}
-                />
-              </li>
-            ))}
+            {questions.map((question) => {
+              const canMoveUp = !question.isOverallSatisfaction && question.questionId !== nonOverallQuestionIds[0];
+              const canMoveDown = !question.isOverallSatisfaction && question.questionId !== nonOverallQuestionIds[nonOverallQuestionIds.length - 1];
+              return (
+                <li key={question.questionId}>
+                  <QuestionItemEditor
+                    question={question}
+                    onEdit={setEditingQuestion}
+                    deleteAction={deleteQuestionAction}
+                    moveAction={moveQuestionAction}
+                    canMoveUp={canMoveUp}
+                    canMoveDown={canMoveDown}
+                  />
+                </li>
+              );
+            })}
           </ol>
         )}
       </div>
