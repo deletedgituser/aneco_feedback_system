@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { RatingDistributionChart } from "./RatingDistributionChart";
-import { PerQuestionPerformanceTable } from "./PerQuestionPerformanceTable";
+import { SurveyResponseTallyTable } from "./SurveyResponseTallyTable";
 import { FormResponseModalList } from "@/components/dashboard/form-response-modal-list";
+import { FlashToast } from "@/components/ui/flash-toast";
 import type { PerQuestionStat, SentimentType } from "@/types";
 
 type SubmissionItem = {
@@ -20,6 +21,17 @@ type SubmissionItem = {
   }>;
 };
 
+type TallyRow = {
+  questionId: number;
+  questionLabel: string;
+  stronglyAgree: number;
+  agree: number;
+  neutral: number;
+  disagree: number;
+  stronglyDisagree: number;
+  notAnswered: number;
+};
+
 interface ResponsesPageTabsProps {
   submissions: SubmissionItem[];
   stats: PerQuestionStat[];
@@ -28,6 +40,10 @@ interface ResponsesPageTabsProps {
   totalPages: number;
   prevPageHref?: string;
   nextPageHref?: string;
+  tallyRows: TallyRow[];
+  formId: number;
+  formTitle: string;
+  personnelName: string;
 }
 
 export function ResponsesPageTabs({
@@ -38,33 +54,82 @@ export function ResponsesPageTabs({
   totalPages,
   prevPageHref,
   nextPageHref,
+  tallyRows,
+  formId,
+  formTitle,
+  personnelName,
 }: ResponsesPageTabsProps) {
   const [activeTab, setActiveTab] = useState<"responses" | "analytics">("responses");
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await fetch(
+        `/api/exports/report-tally?formId=${formId}&format=pdf`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download PDF");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `survey-response-tally-${formId}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setToast({ type: "success", message: "PDF downloaded successfully." });
+    } catch (err) {
+      console.error("Error downloading PDF:", err);
+      setToast({ type: "error", message: "Failed to download PDF. Please try again." });
+    }
+  };
 
   return (
     <div className="space-y-4">
+      {toast ? <FlashToast type={toast.type} message={toast.message} /> : null}
       {/* Tab Navigation */}
-      <div className="flex gap-2 border-b border-border">
+      <div className="flex items-center gap-4 border-b-2 border-border bg-surface-soft rounded-t-2xl px-6 py-4">
         <button
           onClick={() => setActiveTab("responses")}
-          className={`px-4 py-2.5 text-sm font-semibold transition-colors duration-150 ease-in-out ${
+          className={`px-3 py-2 text-sm font-semibold transition-colors duration-200 relative ${
             activeTab === "responses"
-              ? "text-primary border-b-2 border-primary"
+              ? "text-primary"
               : "text-text-muted hover:text-text-default"
           }`}
         >
           Responses
+          {activeTab === "responses" && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+          )}
         </button>
         <button
           onClick={() => setActiveTab("analytics")}
-          className={`px-4 py-2.5 text-sm font-semibold transition-colors duration-150 ease-in-out ${
+          className={`px-3 py-2 text-sm font-semibold transition-colors duration-200 relative ${
             activeTab === "analytics"
-              ? "text-primary border-b-2 border-primary"
+              ? "text-primary"
               : "text-text-muted hover:text-text-default"
           }`}
         >
           Analytics
+          {activeTab === "analytics" && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+          )}
         </button>
+        <div className="ml-auto">
+          <button
+            onClick={handleDownloadPDF}
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
+          >
+            Download PDF
+          </button>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -108,13 +173,13 @@ export function ResponsesPageTabs({
         )}
         {activeTab === "analytics" && (
           <div className="space-y-6">
-            <div className="space-y-3">
+            <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-text-default">Rating Distribution</h3>
-              <RatingDistributionChart key={distribution.map((d) => `${d.score}-${d.count}`).join("|")} data={distribution} />
             </div>
+            <RatingDistributionChart key={distribution.map((d) => `${d.score}-${d.count}`).join("|")} data={distribution} />
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-text-default">Per Question Performance</h3>
-              <PerQuestionPerformanceTable stats={stats} />
+              <h3 className="text-sm font-semibold text-text-default">Survey Response Tally</h3>
+              <SurveyResponseTallyTable rows={tallyRows} />
             </div>
           </div>
         )}

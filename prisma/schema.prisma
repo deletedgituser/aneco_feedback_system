@@ -112,7 +112,7 @@ model Response {
   responseId   Int      @id @default(autoincrement()) @map("response_id")
   feedbackId   Int      @map("feedback_id")
   questionId   Int      @map("question_id")
-  answerValue  Int      @map("answer_value") @db.TinyInt
+  answerValue  Int?     @map("answer_value") @db.TinyInt
 
   feedback Feedback @relation(fields: [feedbackId], references: [feedbackId], onDelete: Restrict, onUpdate: Restrict)
   question Question @relation(fields: [questionId], references: [questionId], onDelete: Restrict, onUpdate: Restrict)

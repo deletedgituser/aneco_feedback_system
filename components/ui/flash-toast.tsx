@@ -33,7 +33,7 @@ export function FlashToast({ type, message }: FlashToastProps) {
   return (
     <div className="fixed top-4 right-4 z-50 max-w-xs sm:max-w-sm">
       <div
-        className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl transition-all duration-300 ease-out ${styles}`}
+        className={`motion-fade-up rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl transition-opacity duration-200 ease-out motion-reduce:transition-none ${styles}`}
         role={role}
         aria-live={liveMode}
       >

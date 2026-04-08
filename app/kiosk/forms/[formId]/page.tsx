@@ -63,6 +63,10 @@ export default async function KioskFormPage({
       ? "Isulat dinhi ang imong komento o sugyot..."
       : "Write your comments or suggestions here...",
     submit: isBisaya ? "I-submit ang feedback" : "Submit feedback",
+    submitting: isBisaya ? "Nagasubmit..." : "Submitting...",
+    completion: isBisaya ? "Progress sa mga pangutana" : "Question progress",
+    overallSection: isBisaya ? "Kinatibuk-ang Kuntento" : "Overall satisfaction",
+    cancel: isBisaya ? "Balik" : "Cancel",
   };
 
   async function submitFeedback(formData: FormData) {
@@ -74,11 +78,16 @@ export default async function KioskFormPage({
 
     const answers: { questionId: number; answerValue: number }[] = [];
     for (const question of activeForm.questions) {
-      const value = Number(formData.get(`q-${question.questionId}`));
-      if (!Number.isInteger(value) || value < 1 || value > 5) {
-        redirect(`/kiosk/forms/${activeForm.formId}?toastType=error&toastMessage=Please+answer+all+questions.`);
+      const rawValue = formData.get(`q-${question.questionId}`);
+      if (rawValue !== null && rawValue !== "") {
+        // Question was answered - validate and include
+        const value = Number(rawValue);
+        if (!Number.isInteger(value) || value < 1 || value > 5) {
+          redirect(`/kiosk/forms/${activeForm.formId}?toastType=error&toastMessage=Invalid+rating+value.`);
+        }
+        answers.push({ questionId: question.questionId, answerValue: value });
       }
-      answers.push({ questionId: question.questionId, answerValue: value });
+      // If not answered, we simply don't include it in the answers array
     }
 
     const feedback = await prisma.feedback.create({
@@ -127,12 +136,15 @@ export default async function KioskFormPage({
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-8 sm:px-5 sm:py-9">
-      <header className="rounded-2xl border border-border bg-surface p-4 shadow-[0_10px_30px_-18px_rgba(31,45,44,0.35)] sm:p-5">
-        <div className="mb-2 flex items-center justify-between gap-3">
+    <main className="mx-auto min-h-screen w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
+      <header className="motion-fade-up relative overflow-hidden rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+        <div className="pointer-events-none absolute -left-20 -top-16 h-44 w-44 rounded-full bg-primary/8 blur-2xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-20 -bottom-16 h-44 w-44 rounded-full bg-accent/10 blur-2xl" aria-hidden="true" />
+
+        <div className="relative mb-3 flex items-center justify-between gap-3">
           <Link
             href={returnUrl}
-            className="inline-flex rounded-xl border border-border px-2.5 py-1.5 text-xs font-semibold text-text-default hover:bg-surface-soft"
+            className="inline-flex rounded-xl border border-border px-2.5 py-1.5 text-xs font-semibold text-text-default transition-colors duration-150 ease-in-out motion-reduce:transition-none hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
           >
             Back
           </Link>
@@ -146,13 +158,18 @@ export default async function KioskFormPage({
             priority
           />
         </div>
-        <div className="mb-1 flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-text-default sm:text-3xl">{activeForm.title}</h1>
+
+        <div className="relative mb-1 flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold tracking-tight text-text-default sm:text-4xl">{activeForm.title}</h1>
+          <span className="hidden rounded-full bg-accent/24 px-3 py-1 text-xs font-bold uppercase tracking-wide text-text-default ring-1 ring-accent/30 sm:inline-flex">
+            {activeForm.language.toUpperCase()}
+          </span>
         </div>
-        <p className="mt-2 text-lg text-text-secondary">{activeForm.description}</p>
-        <div className="mt-4 rounded-2xl border border-border bg-surface-soft px-4 py-3 text-sm text-text-default">
+
+        <p className="relative mt-2 text-base leading-relaxed text-text-secondary sm:text-lg">{activeForm.description}</p>
+        <div className="relative mt-5 rounded-2xl border border-border bg-surface-soft px-4 py-3 text-sm text-text-default">
           <p className="font-bold uppercase">{text.ratingGuideTitle}</p>
-          <p className="mt-1 text-base">{text.ratingGuideBody}</p>
+          <p className="mt-1 text-sm sm:text-base">{text.ratingGuideBody}</p>
         </div>
       </header>
 

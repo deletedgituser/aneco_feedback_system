@@ -30,14 +30,19 @@ export function RatingDistributionChart({ data }: RatingDistributionChartProps) 
     const scores = [1, 2, 3, 4, 5];
     const counts = scores.map((score) => data.find((d) => d.score === score)?.count ?? 0);
 
-    // Use gradient-like colors based on sentiment
-    const getColor = (score: number): string => {
-      if (score === 1) return "#DC2626"; // Red for very dissatisfied
-      if (score === 2) return "#F97316"; // Orange for dissatisfied
-      if (score === 3) return "#FCD34D"; // Yellow for neutral
-      if (score === 4) return "#86EFAC"; // Light green for satisfied
-      return "#22C55E"; // Green for very satisfied
+    const rootStyles = typeof window === "undefined" ? null : getComputedStyle(document.documentElement);
+    const colorValue = (token: string, fallback: string): string => {
+      const value = rootStyles?.getPropertyValue(token).trim();
+      return value && value.length > 0 ? value : fallback;
     };
+
+    const sentimentColors = [
+      colorValue("--color-danger", "rgb(180, 68, 48)"),
+      colorValue("--error-fg", "rgb(159, 70, 49)"),
+      colorValue("--color-warning", "rgb(233, 196, 106)"),
+      colorValue("--color-primary-soft", "rgb(110, 143, 139)"),
+      colorValue("--color-success", "rgb(76, 175, 80)"),
+    ];
 
     return {
       labels: scores.map((s) => {
@@ -54,8 +59,8 @@ export function RatingDistributionChart({ data }: RatingDistributionChartProps) 
         {
           label: "Number of Responses",
           data: counts,
-          backgroundColor: scores.map((score) => getColor(score)),
-          borderColor: scores.map((score) => getColor(score)),
+          backgroundColor: scores.map((score) => sentimentColors[score - 1]),
+          borderColor: scores.map((score) => sentimentColors[score - 1]),
           borderRadius: 8,
           borderSkipped: false,
           borderWidth: 1,
@@ -122,7 +127,7 @@ export function RatingDistributionChart({ data }: RatingDistributionChartProps) 
 
   return (
     <div className="w-full rounded-xl border border-border bg-surface-soft p-6">
-      <div style={{ position: "relative", width: "100%", minHeight: "400px" }}>
+      <div className="relative w-full min-h-[400px]">
         <Bar data={chartConfig} options={options} />
       </div>
     </div>

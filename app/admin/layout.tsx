@@ -5,7 +5,10 @@ import { getSessionPayload } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 const adminItems = [
-  { href: "/admin", label: "Accounts", icon: "accounts" as const },
+  { href: "/admin/dashboard", label: "Dashboard", icon: "dashboard" as const },
+  { href: "/admin/forms", label: "Forms", icon: "forms" as const },
+  { href: "/admin/responses", label: "Responses", icon: "responses" as const },
+  { href: "/admin/accounts", label: "Accounts", icon: "accounts" as const },
   { href: "/admin/logs", label: "Logs", icon: "logs" as const },
 ];
 

@@ -1,38 +1,51 @@
 import { prisma } from "@/lib/prisma";
 import { AnalyticsCharts } from "@/components/dashboard/analytics-charts";
 import Link from "next/link";
-import { ClipboardList, Star, Vote } from "lucide-react";
+import { ClipboardList, Vote, MessageSquare } from "lucide-react";
 import { StatCard } from "@/components/ui/stat-card";
+import { LiveRefresh } from "@/components/ui/live-refresh";
 
 async function getSummary() {
-  const [totalSubmissions, averageRating, totalForms] = await Promise.all([
+  const [totalResponsesCount, totalFormsCount] = await Promise.all([
     prisma.feedback.count(),
-    prisma.response.aggregate({
-      _avg: { answerValue: true },
-    }),
     prisma.form.count({
       where: { isActive: true },
     }),
   ]);
 
   return {
-    totalSubmissions,
-    averageRating: Number(averageRating._avg.answerValue ?? 0).toFixed(2),
-    totalForms,
+    totalResponses: totalResponsesCount,
+    totalForms: totalFormsCount,
   };
 }
 
 async function getChartData() {
-  const feedbackRows = await prisma.feedback.findMany({
-    select: {
-      feedbackId: true,
-      formId: true,
-      submittedAt: true,
-    },
-    orderBy: {
-      submittedAt: "asc",
-    },
-  });
+  const [feedbackRows, forms, groupedFeedbackCounts] = await Promise.all([
+    prisma.feedback.findMany({
+      select: {
+        feedbackId: true,
+        formId: true,
+        submittedAt: true,
+      },
+      orderBy: {
+        submittedAt: "asc",
+      },
+    }),
+    prisma.form.findMany({
+      select: {
+        formId: true,
+        title: true,
+        isActive: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.feedback.groupBy({
+      by: ["formId"],
+      _count: {
+        _all: true,
+      },
+    }),
+  ]);
 
   const responseRows = await prisma.response.findMany({
     select: {
@@ -63,19 +76,24 @@ async function getChartData() {
     count,
   }));
 
-  const forms = await prisma.form.findMany({
-    select: {
-      formId: true,
-      title: true,
-      isActive: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
   const feedbackToForm = new Map<number, number>();
   for (const row of feedbackRows) {
     feedbackToForm.set(row.feedbackId, row.formId);
   }
+
+  // Per-form submission counts from DB grouping to avoid client-side undercounting.
+  const perFormSubmissionMap = new Map<number, number>();
+  for (const row of groupedFeedbackCounts) {
+    perFormSubmissionMap.set(row.formId, row._count._all);
+  }
+
+  const perFormSubmissions = forms
+    .map((form) => ({
+      formId: form.formId,
+      title: form.title,
+      submissions: perFormSubmissionMap.get(form.formId) ?? 0,
+    }))
+    .sort((a, b) => b.submissions - a.submissions);
 
   const perFormMap = new Map<number, { totalResponses: number; sum: number }>();
   for (const row of responseRows) {
@@ -130,12 +148,23 @@ async function getChartData() {
     .sort((a, b) => b.averageRating - a.averageRating)
     .slice(0, 10);
 
+  // Total questions count
+  const totalQuestions = await prisma.question.count({
+    where: {
+      form: {
+        isActive: true,
+      },
+    },
+  });
+
   return {
     distribution,
     trend,
     forms,
     perForm,
     perQuestion,
+    perFormSubmissions,
+    totalQuestions,
   };
 }
 
@@ -145,8 +174,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <LiveRefresh />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-text-default">Analytics Snapshot</h1>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-text-muted">Live Overview</p>
+          <h1 className="text-2xl font-semibold text-text-default">Analytics Snapshot</h1>
+        </div>
         <Link
           href="/forms"
           className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
@@ -155,18 +188,17 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Total submissions" value={summary.totalSubmissions} icon={Vote} />
-        <StatCard label="Average rating" value={summary.averageRating} icon={Star} />
-        <StatCard label="Active forms" value={summary.totalForms} icon={ClipboardList} />
+      <div className="grid gap-6 sm:grid-cols-3">
+        <StatCard label="Total Forms" value={summary.totalForms} icon={ClipboardList} />
+        <StatCard label="Total Responses" value={summary.totalResponses} icon={Vote} />
+        <StatCard label="Total Questions" value={chartData.totalQuestions} icon={MessageSquare} />
       </div>
 
       <AnalyticsCharts
         forms={chartData.forms}
         distribution={chartData.distribution}
         trend={chartData.trend}
-        perForm={chartData.perForm}
-        perQuestion={chartData.perQuestion}
+        perFormSubmissions={chartData.perFormSubmissions}
       />
 
       <section className="rounded-2xl border border-border bg-surface p-6">

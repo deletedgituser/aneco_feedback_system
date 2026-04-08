@@ -1,0 +1,361 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "Back" [ref=e5] [cursor=pointer]:
+        - /url: /kiosk
+      - img "ANECO logo" [ref=e6]
+    - heading "Customer Feedback Form" [level=1] [ref=e8]
+    - paragraph [ref=e9]: Please rate our services. Your feedback is valuable to us, just select the rate of your choice. Thank you very much.
+    - generic [ref=e10]:
+      - paragraph [ref=e11]: Rating guide
+      - paragraph [ref=e12]: 1 (😠 Angry) means unsatisfied and 5 (😄 Smile) means satisfied.
+  - generic [ref=e13]:
+    - generic [ref=e14]:
+      - heading "Optional Details" [level=2] [ref=e15]
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - text: Your name (optional)
+          - textbox "Your name (optional)" [ref=e18]
+        - generic [ref=e19]:
+          - text: Employee assisted (optional)
+          - textbox "Employee assisted (optional)" [ref=e20]
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - paragraph [ref=e25]: "Part 1: STAFF/EMPLEYADO"
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - paragraph [ref=e29]:
+              - generic [ref=e30]: "1."
+              - text: Polite and courteous
+            - paragraph [ref=e31]: (Ni smile ug ni greet sa imu ug good morning/afternoon/evening ug nag Thank you.)
+          - generic [ref=e32]:
+            - generic "Very unsatisfied" [ref=e33] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e34]
+              - generic [ref=e35]: 😠
+              - generic [ref=e36]: "1"
+            - generic "Unsatisfied" [ref=e37] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e38]
+              - generic [ref=e39]: 🙁
+              - generic [ref=e40]: "2"
+            - generic "Neutral" [ref=e41] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e42]
+              - generic [ref=e43]: 😐
+              - generic [ref=e44]: "3"
+            - generic "Satisfied" [ref=e45] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e46]
+              - generic [ref=e47]: 🙂
+              - generic [ref=e48]: "4"
+            - generic "Very satisfied" [ref=e49] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e50]
+              - generic [ref=e51]: 😄
+              - generic [ref=e52]: "5"
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - paragraph [ref=e56]:
+              - generic [ref=e57]: "2."
+              - text: Gives you clear instructions
+            - paragraph [ref=e58]: (Gipasabot ikaw ug maayo sa imong buhaton/gitagaan ka dayon ug assistance.)
+          - generic [ref=e59]:
+            - generic "Very unsatisfied" [ref=e60] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e61]
+              - generic [ref=e62]: 😠
+              - generic [ref=e63]: "1"
+            - generic "Unsatisfied" [ref=e64] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e65]
+              - generic [ref=e66]: 🙁
+              - generic [ref=e67]: "2"
+            - generic "Neutral" [ref=e68] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e69]
+              - generic [ref=e70]: 😐
+              - generic [ref=e71]: "3"
+            - generic "Satisfied" [ref=e72] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e73]
+              - generic [ref=e74]: 🙂
+              - generic [ref=e75]: "4"
+            - generic "Very satisfied" [ref=e76] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e77]
+              - generic [ref=e78]: 😄
+              - generic [ref=e79]: "5"
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - paragraph [ref=e83]:
+              - generic [ref=e84]: "3."
+              - text: Wears proper uniform with identification card.
+            - paragraph [ref=e85]: (Nag suot ug desente nga uniform ug adunay identification card.)
+          - generic [ref=e86]:
+            - generic "Very unsatisfied" [ref=e87] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e88]
+              - generic [ref=e89]: 😠
+              - generic [ref=e90]: "1"
+            - generic "Unsatisfied" [ref=e91] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e92]
+              - generic [ref=e93]: 🙁
+              - generic [ref=e94]: "2"
+            - generic "Neutral" [ref=e95] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e96]
+              - generic [ref=e97]: 😐
+              - generic [ref=e98]: "3"
+            - generic "Satisfied" [ref=e99] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e100]
+              - generic [ref=e101]: 🙂
+              - generic [ref=e102]: "4"
+            - generic "Very satisfied" [ref=e103] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e104]
+              - generic [ref=e105]: 😄
+              - generic [ref=e106]: "5"
+      - generic [ref=e107]:
+        - paragraph [ref=e109]: "Part 2: ELECTRIC COOPERATIVE MAINTENANCE WORK"
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - paragraph [ref=e113]:
+              - generic [ref=e114]: "4."
+              - text: Reliability of Power Supply. How frequently do you experience power outages in your area?
+            - paragraph [ref=e115]: (Unsa ka sagad ang inyong masinati nga pagkawala sa kuryente sa inyong lugar?)
+          - generic [ref=e116]:
+            - generic "Very unsatisfied" [ref=e117] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e118]
+              - generic [ref=e119]: 😠
+              - generic [ref=e120]: "1"
+            - generic "Unsatisfied" [ref=e121] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e122]
+              - generic [ref=e123]: 🙁
+              - generic [ref=e124]: "2"
+            - generic "Neutral" [ref=e125] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e126]
+              - generic [ref=e127]: 😐
+              - generic [ref=e128]: "3"
+            - generic "Satisfied" [ref=e129] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e130]
+              - generic [ref=e131]: 🙂
+              - generic [ref=e132]: "4"
+            - generic "Very satisfied" [ref=e133] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e134]
+              - generic [ref=e135]: 😄
+              - generic [ref=e136]: "5"
+        - generic [ref=e137]:
+          - generic [ref=e138]:
+            - paragraph [ref=e140]:
+              - generic [ref=e141]: "5."
+              - text: How quickly is the work/service in restoring power?
+            - paragraph [ref=e142]: (Unsa kadali napabalik ang kuryente?)
+          - generic [ref=e143]:
+            - generic "Very unsatisfied" [ref=e144] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e145]
+              - generic [ref=e146]: 😠
+              - generic [ref=e147]: "1"
+            - generic "Unsatisfied" [ref=e148] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e149]
+              - generic [ref=e150]: 🙁
+              - generic [ref=e151]: "2"
+            - generic "Neutral" [ref=e152] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e153]
+              - generic [ref=e154]: 😐
+              - generic [ref=e155]: "3"
+            - generic "Satisfied" [ref=e156] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e157]
+              - generic [ref=e158]: 🙂
+              - generic [ref=e159]: "4"
+            - generic "Very satisfied" [ref=e160] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e161]
+              - generic [ref=e162]: 😄
+              - generic [ref=e163]: "5"
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - paragraph [ref=e167]:
+              - generic [ref=e168]: "6."
+              - text: Quality of Maintenance Work. How quickly are repairs completed?
+            - paragraph [ref=e169]: (Unsa ka dali nakompleto ang mga pag-ayo?)
+          - generic [ref=e170]:
+            - generic "Very unsatisfied" [ref=e171] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e172]
+              - generic [ref=e173]: 😠
+              - generic [ref=e174]: "1"
+            - generic "Unsatisfied" [ref=e175] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e176]
+              - generic [ref=e177]: 🙁
+              - generic [ref=e178]: "2"
+            - generic "Neutral" [ref=e179] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e180]
+              - generic [ref=e181]: 😐
+              - generic [ref=e182]: "3"
+            - generic "Satisfied" [ref=e183] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e184]
+              - generic [ref=e185]: 🙂
+              - generic [ref=e186]: "4"
+            - generic "Very satisfied" [ref=e187] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e188]
+              - generic [ref=e189]: 😄
+              - generic [ref=e190]: "5"
+        - generic [ref=e191]:
+          - generic [ref=e192]:
+            - paragraph [ref=e194]:
+              - generic [ref=e195]: "7."
+              - text: Communication with Customers. How clear is communication about outages and repairs?
+            - paragraph [ref=e196]: (Unsa ka klaro ang komunikasyon kabahin sa mga pagkawala ug pagbalik sa kuryente?)
+          - generic [ref=e197]:
+            - generic "Very unsatisfied" [ref=e198] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e199]
+              - generic [ref=e200]: 😠
+              - generic [ref=e201]: "1"
+            - generic "Unsatisfied" [ref=e202] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e203]
+              - generic [ref=e204]: 🙁
+              - generic [ref=e205]: "2"
+            - generic "Neutral" [ref=e206] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e207]
+              - generic [ref=e208]: 😐
+              - generic [ref=e209]: "3"
+            - generic "Satisfied" [ref=e210] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e211]
+              - generic [ref=e212]: 🙂
+              - generic [ref=e213]: "4"
+            - generic "Very satisfied" [ref=e214] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e215]
+              - generic [ref=e216]: 😄
+              - generic [ref=e217]: "5"
+        - generic [ref=e218]:
+          - generic [ref=e219]:
+            - paragraph [ref=e221]:
+              - generic [ref=e222]: "8."
+              - text: Safety of Work Practices. Do you feel the maintenance crews follow safe work practices?
+            - paragraph [ref=e223]: (Nakita ba ninyo nga ang mga maintenance crew nagsunod sa luwas nga mga pamaagi sa pagtrabaho?)
+          - generic [ref=e224]:
+            - generic "Very unsatisfied" [ref=e225] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e226]
+              - generic [ref=e227]: 😠
+              - generic [ref=e228]: "1"
+            - generic "Unsatisfied" [ref=e229] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e230]
+              - generic [ref=e231]: 🙁
+              - generic [ref=e232]: "2"
+            - generic "Neutral" [ref=e233] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e234]
+              - generic [ref=e235]: 😐
+              - generic [ref=e236]: "3"
+            - generic "Satisfied" [ref=e237] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e238]
+              - generic [ref=e239]: 🙂
+              - generic [ref=e240]: "4"
+            - generic "Very satisfied" [ref=e241] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e242]
+              - generic [ref=e243]: 😄
+              - generic [ref=e244]: "5"
+        - generic [ref=e245]:
+          - generic [ref=e246]:
+            - paragraph [ref=e248]:
+              - generic [ref=e249]: "9."
+              - text: Cleanliness of Work Areas. How clean is the work area left after maintenance?
+            - paragraph [ref=e250]: (Unsa ka limpyo ang lugar nga gipangtrabahuan human maintenance work?)
+          - generic [ref=e251]:
+            - generic "Very unsatisfied" [ref=e252] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e253]
+              - generic [ref=e254]: 😠
+              - generic [ref=e255]: "1"
+            - generic "Unsatisfied" [ref=e256] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e257]
+              - generic [ref=e258]: 🙁
+              - generic [ref=e259]: "2"
+            - generic "Neutral" [ref=e260] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e261]
+              - generic [ref=e262]: 😐
+              - generic [ref=e263]: "3"
+            - generic "Satisfied" [ref=e264] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e265]
+              - generic [ref=e266]: 🙂
+              - generic [ref=e267]: "4"
+            - generic "Very satisfied" [ref=e268] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e269]
+              - generic [ref=e270]: 😄
+              - generic [ref=e271]: "5"
+        - generic [ref=e272]:
+          - generic [ref=e273]:
+            - paragraph [ref=e275]:
+              - generic [ref=e276]: "10."
+              - text: Customer Service During Maintenance. How helpful and responsive is the customer service during maintenance?
+            - paragraph [ref=e277]: (Unsa ka daling motubag ug moresponde ang customer service sa ANECO?)
+          - generic [ref=e278]:
+            - generic "Very unsatisfied" [ref=e279] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e280]
+              - generic [ref=e281]: 😠
+              - generic [ref=e282]: "1"
+            - generic "Unsatisfied" [ref=e283] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e284]
+              - generic [ref=e285]: 🙁
+              - generic [ref=e286]: "2"
+            - generic "Neutral" [ref=e287] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e288]
+              - generic [ref=e289]: 😐
+              - generic [ref=e290]: "3"
+            - generic "Satisfied" [ref=e291] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e292]
+              - generic [ref=e293]: 🙂
+              - generic [ref=e294]: "4"
+            - generic "Very satisfied" [ref=e295] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e296]
+              - generic [ref=e297]: 😄
+              - generic [ref=e298]: "5"
+      - generic [ref=e299]:
+        - paragraph [ref=e301]: "Part 3: QUALITY OF SERVICE (KALIDAD SA SERBISYO)"
+        - generic [ref=e302]:
+          - generic [ref=e303]:
+            - paragraph [ref=e305]:
+              - generic [ref=e306]: "11."
+              - text: Prompt, adequate and correct information and/or documents were given.
+            - paragraph [ref=e307]: (Paspas, ensakto ug walay sayop ang impormasyon o dokumento ang nahatag.)
+          - generic [ref=e308]:
+            - generic "Very unsatisfied" [ref=e309] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e310]
+              - generic [ref=e311]: 😠
+              - generic [ref=e312]: "1"
+            - generic "Unsatisfied" [ref=e313] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e314]
+              - generic [ref=e315]: 🙁
+              - generic [ref=e316]: "2"
+            - generic "Neutral" [ref=e317] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e318]
+              - generic [ref=e319]: 😐
+              - generic [ref=e320]: "3"
+            - generic "Satisfied" [ref=e321] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e322]
+              - generic [ref=e323]: 🙂
+              - generic [ref=e324]: "4"
+            - generic "Very satisfied" [ref=e325] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e326]
+              - generic [ref=e327]: 😄
+              - generic [ref=e328]: "5"
+      - generic [ref=e329]:
+        - paragraph [ref=e331]: Overall
+        - generic [ref=e332]:
+          - generic [ref=e333]:
+            - paragraph [ref=e335]:
+              - generic [ref=e336]: "12."
+              - text: Overall Satisfaction
+            - paragraph [ref=e337]: Please rate your overall experience.
+          - generic [ref=e338]:
+            - generic "Very unsatisfied" [ref=e339] [cursor=pointer]:
+              - radio "1 - Very unsatisfied" [ref=e340]
+              - generic [ref=e341]: 😠
+              - generic [ref=e342]: "1"
+            - generic "Unsatisfied" [ref=e343] [cursor=pointer]:
+              - radio "2 - Unsatisfied" [ref=e344]
+              - generic [ref=e345]: 🙁
+              - generic [ref=e346]: "2"
+            - generic "Neutral" [ref=e347] [cursor=pointer]:
+              - radio "3 - Neutral" [ref=e348]
+              - generic [ref=e349]: 😐
+              - generic [ref=e350]: "3"
+            - generic "Satisfied" [ref=e351] [cursor=pointer]:
+              - radio "4 - Satisfied" [ref=e352]
+              - generic [ref=e353]: 🙂
+              - generic [ref=e354]: "4"
+            - generic "Very satisfied" [ref=e355] [cursor=pointer]:
+              - radio "5 - Very satisfied" [ref=e356]
+              - generic [ref=e357]: 😄
+              - generic [ref=e358]: "5"
+    - generic [ref=e360]:
+      - text: Comments or suggestions (optional)
+      - textbox "Comments or suggestions (optional)" [ref=e361]:
+        - /placeholder: Write your comments or suggestions here...
+    - generic [ref=e362]:
+      - button "Cancel" [ref=e363]
+      - button "Submit feedback" [ref=e364]

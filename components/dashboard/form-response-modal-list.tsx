@@ -16,6 +16,12 @@ type SubmissionItem = {
     answerValue: number;
     questionLabel: string;
   }>;
+  // FIX: Include all questions to display N/A for unanswered ones
+  allQuestions?: Array<{
+    questionId: number;
+    label: string;
+    answerValue: number | null;
+  }>;
 };
 
 type FormResponseModalListProps = {
@@ -154,19 +160,33 @@ export function FormResponseModalList({
                 </div>
 
                 <ul className="space-y-3">
-                  {selectedSubmission.responses.map((response) => (
-                    <li key={response.responseId} className="rounded-2xl border border-border bg-surface p-4">
-                      <p className="text-sm font-medium text-text-default">{response.questionLabel}</p>
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-semibold text-text-default">
-                          Score: {response.answerValue}/5
-                        </span>
-                        <span className="rounded-full bg-surface-soft px-3 py-1 text-xs font-semibold text-text-default">
-                          {scoreLabel(response.answerValue)}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
+                  {(selectedSubmission.allQuestions ?? selectedSubmission.responses).map((item: any) => {
+                    const isUnanswered = selectedSubmission.allQuestions && item.answerValue === null;
+                    const questionLabel = selectedSubmission.allQuestions ? item.label : item.questionLabel;
+                    const answerValue = selectedSubmission.allQuestions ? item.answerValue : item.answerValue;
+                    
+                    return (
+                      <li key={selectedSubmission.allQuestions ? item.questionId : item.responseId} className="rounded-2xl border border-border bg-surface p-4">
+                        <p className="text-sm font-medium text-text-default">{questionLabel}</p>
+                        {isUnanswered ? (
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-surface-soft px-3 py-1 text-xs font-semibold text-text-muted">
+                              Not Answered
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-semibold text-text-default">
+                              Score: {answerValue}/5
+                            </span>
+                            <span className="rounded-full bg-surface-soft px-3 py-1 text-xs font-semibold text-text-default">
+                              {scoreLabel(answerValue)}
+                            </span>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>

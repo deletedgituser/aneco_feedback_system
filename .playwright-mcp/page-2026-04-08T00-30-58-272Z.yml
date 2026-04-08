@@ -1,0 +1,19 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img "ANECO logo" [ref=e5]
+      - generic [ref=e6]:
+        - heading "ANECO Feedback System" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Secure access for admin and personnel
+    - paragraph [ref=e9]: Shared login for administrator and personnel accounts.
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - text: Username or email
+        - textbox "Username or email" [ref=e13]
+      - generic [ref=e14]:
+        - text: Password
+        - generic [ref=e15]:
+          - textbox "Password" [ref=e16]
+          - button [ref=e17]:
+            - img [ref=e18]
+      - button "Sign in" [ref=e21]

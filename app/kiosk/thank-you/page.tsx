@@ -41,8 +41,8 @@ export default async function KioskThankYouPage({
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-10">
       <div className="relative w-full max-w-lg">
-        <div className="rounded-3xl border border-border bg-surface p-8 shadow-[0_24px_48px_-28px_rgba(31,45,44,0.45)]">
-          <div className="mx-auto mb-5 grid h-20 w-20 place-items-center rounded-full bg-gradient-to-r from-primary to-primary-hover p-1 shadow-lg">
+        <div className="motion-fade-up rounded-3xl border border-border bg-surface p-8 shadow-sm">
+          <div className="motion-pulse-soft mx-auto mb-5 grid h-20 w-20 place-items-center rounded-full bg-gradient-to-r from-primary to-primary-hover p-1 shadow-lg">
             <Image
               src="/logo.png"
               alt="ANECO logo"
@@ -56,7 +56,7 @@ export default async function KioskThankYouPage({
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight text-text-default">Thank you!</h1>
             <p className="mt-2 text-sm font-medium uppercase tracking-wider text-primary">Feedback received</p>
-            <p className="mt-4 text-sm text-text-muted">
+            <p className="mt-4 text-sm leading-relaxed text-text-muted">
               Your response is helping ANECO improve service quality. You will be redirected shortly.
             </p>
           </div>
