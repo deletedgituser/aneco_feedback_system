@@ -99,6 +99,11 @@ export async function GET(request: NextRequest) {
 
   const perFormMap = new Map<number, { totalResponses: number; sum: number }>();
   for (const row of responseRows) {
+    // Skip null answers
+    if (row.answerValue === null) {
+      continue;
+    }
+    
     const formIdOfFeedback = feedbackToForm.get(row.feedbackId);
     if (!formIdOfFeedback) {
       continue;
@@ -125,11 +130,15 @@ export async function GET(request: NextRequest) {
         averageRating,
       };
     })
-    .sort((a, b) => b.averageRating - a.averageRating)
-    ;
+    .sort((a, b) => b.averageRating - a.averageRating);
 
   const perQuestionMap = new Map<number, { label: string; totalResponses: number; sum: number }>();
   for (const row of responseRows) {
+    // Skip null answers
+    if (row.answerValue === null) {
+      continue;
+    }
+    
     const current = perQuestionMap.get(row.question.questionId) ?? {
       label: row.question.label,
       totalResponses: 0,

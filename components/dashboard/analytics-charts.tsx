@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -15,35 +16,39 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const fallbackChartPalette = {
-  primary: "#3e5f5c",
-  success: "#d4a017",
+  primary: "rgb(62, 95, 92)",
+  success: "rgb(212, 160, 23)",
 };
 
-function formatDateLabel(dateText: string): string {
-  const parsed = new Date(dateText);
-  if (Number.isNaN(parsed.getTime())) {
-    return dateText;
-  }
-  return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function getISOWeekStart(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
 }
 
-type PerformanceStatus = "positive" | "neutral" | "negative" | "no-data";
-
-function assessPerformance(averageRating: number, totalResponses: number): {
-  status: PerformanceStatus;
-  label: string;
-} {
-  if (totalResponses === 0) {
-    return { status: "no-data", label: "No Data" };
-  }
-  if (averageRating >= 4) {
-    return { status: "positive", label: "Positive" };
-  }
-  if (averageRating <= 2.5) {
-    return { status: "negative", label: "Negative" };
-  }
-  return { status: "neutral", label: "Neutral" };
+function getWeekLabel(startDate: Date, endDate: Date): string {
+  const start = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(startDate);
+  const end = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(endDate);
+  return `${start} – ${end}`;
 }
+
+function getDayLabel(date: Date): string {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return days[date.getDay()] + " " + new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+}
+
+function getWeekEndDate(startDate: Date): Date {
+  const end = new Date(startDate);
+  end.setDate(end.getDate() + 6);
+  return end;
+}
+
+function formatDateForInput(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+type TrendRow = { date: string; count: number };
 
 type FormOption = {
   formId: number;
@@ -54,20 +59,17 @@ type AnalyticsChartsProps = {
   forms: FormOption[];
   distribution: Array<{ score: number; count: number }>;
   trend: Array<{ date: string; count: number }>;
-  perForm: Array<{ formId: number; title: string; averageRating: number; totalResponses: number }>;
-  perQuestion: Array<{ questionId: number; label: string; averageRating: number; totalResponses: number }>;
+  perFormSubmissions?: Array<{ formId: number; title: string; submissions: number }>;
 };
 
-export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps) {
+export function AnalyticsCharts({ forms, trend, perFormSubmissions }: AnalyticsChartsProps) {
   const [selectedForm, setSelectedForm] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [assistedEmployee, setAssistedEmployee] = useState("");
-  const [debouncedEmployee, setDebouncedEmployee] = useState("");
   const [trendRows, setTrendRows] = useState(trend);
-  const [perFormRows, setPerFormRows] = useState(perForm);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [chartTitle, setChartTitle] = useState("Submissions");
 
   const chartPalette = useMemo(() => {
     if (typeof window === "undefined") {
@@ -82,26 +84,14 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedEmployee(assistedEmployee);
-    }, 300);
-
-    return () => window.clearTimeout(timer);
-  }, [assistedEmployee]);
-
-  useEffect(() => {
     let active = true;
 
-    async function loadFilteredCharts() {
-      const hasFilters =
-        selectedForm !== "all" ||
-        Boolean(fromDate) ||
-        Boolean(toDate) ||
-        Boolean(debouncedEmployee.trim());
+    async function loadFilteredTrend() {
+      const hasFilters = selectedForm !== "all" || Boolean(fromDate) || Boolean(toDate);
 
       if (!hasFilters) {
         setTrendRows(trend);
-        setPerFormRows(perForm);
+        setChartTitle("Submissions");
         setErrorMessage("");
         setLoading(false);
         return;
@@ -110,7 +100,6 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
       if (fromDate && toDate && fromDate > toDate) {
         setErrorMessage("The 'From' date must be earlier than or equal to the 'To' date.");
         setTrendRows(trend);
-        setPerFormRows(perForm);
         setLoading(false);
         return;
       }
@@ -129,9 +118,6 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         if (toDate) {
           params.set("to", toDate);
         }
-        if (debouncedEmployee.trim()) {
-          params.set("assistedEmployee", debouncedEmployee.trim());
-        }
 
         const query = params.toString();
         const url = query ? `/api/analytics/charts?${query}` : "/api/analytics/charts";
@@ -143,7 +129,6 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
 
         const payload = (await response.json()) as {
           trend?: Array<{ date: string; count: number }>;
-          perForm?: Array<{ formId: number; title: string; averageRating: number; totalResponses: number }>;
         };
 
         if (!active) {
@@ -151,14 +136,12 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
         }
 
         setTrendRows(payload.trend ?? []);
-        setPerFormRows(payload.perForm ?? []);
       } catch {
         if (!active) {
           return;
         }
         setErrorMessage("Unable to load filtered analytics. Showing latest available data.");
         setTrendRows(trend);
-        setPerFormRows(perForm);
       } finally {
         if (active) {
           setLoading(false);
@@ -166,61 +149,166 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
       }
     }
 
-    void loadFilteredCharts();
+    void loadFilteredTrend();
 
     return () => {
       active = false;
     };
-  }, [selectedForm, fromDate, toDate, debouncedEmployee, trend, perForm]);
+  }, [selectedForm, fromDate, toDate, trend]);
+
+  // Calculate date range in days to determine view type
+  const dayCount = useMemo(() => {
+    if (!fromDate || !toDate) return null;
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    return Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  }, [fromDate, toDate]);
+
+  // Prepare chart data based on range
+  const { chartData, displayLabels } = useMemo(() => {
+    if (dayCount && dayCount > 7) {
+      // Weekly grouping
+      const weekMap = new Map<string, number>();
+      for (const row of trendRows) {
+        const date = new Date(row.date);
+        const weekStart = getISOWeekStart(date);
+        const weekEnd = getWeekEndDate(weekStart);
+        const weekKey = formatDateForInput(weekStart);
+        weekMap.set(weekKey, (weekMap.get(weekKey) ?? 0) + row.count);
+      }
+
+      const weekEntries = Array.from(weekMap.entries())
+        .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+        .map(([weekStart, count]) => {
+          const weekEnd = getWeekEndDate(new Date(weekStart));
+          return {
+            label: getWeekLabel(new Date(weekStart), weekEnd),
+            count,
+          };
+        });
+
+      return {
+        chartData: {
+          labels: weekEntries.map((w) => w.label),
+          datasets: [
+            {
+              label: "Submissions",
+              data: weekEntries.map((w) => w.count),
+              backgroundColor: chartPalette.primary,
+              borderRadius: 6,
+            },
+          ],
+        },
+        displayLabels: weekEntries.map((w) => w.label),
+      };
+    } else {
+      // Daily view - always show 7 days of the week
+      let weekStart: Date;
+      if (fromDate && toDate) {
+        weekStart = new Date(fromDate);
+      } else {
+        const today = new Date();
+        weekStart = getISOWeekStart(today);
+      }
+
+      const dailyData: Record<string, number> = {};
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(weekStart);
+        date.setDate(date.getDate() + i);
+        const dateKey = date.toISOString().slice(0, 10);
+        dailyData[dateKey] = 0;
+      }
+
+      for (const row of trendRows) {
+        const dateKey = row.date;
+        if (dateKey in dailyData) {
+          dailyData[dateKey] = row.count;
+        }
+      }
+
+      const dailyEntries = Object.entries(dailyData).map(([dateStr, count]) => ({
+        date: new Date(dateStr),
+        count,
+      }));
+
+      return {
+        chartData: {
+          labels: dailyEntries.map((e) => getDayLabel(e.date)),
+          datasets: [
+            {
+              label: "Submissions",
+              data: dailyEntries.map((e) => e.count),
+              backgroundColor: chartPalette.primary,
+              borderRadius: 6,
+            },
+          ],
+        },
+        displayLabels: dailyEntries.map((e) => getDayLabel(e.date)),
+      };
+    }
+  }, [trendRows, dayCount, chartPalette]);
+
+  // Update chart title based on date range
+  useEffect(() => {
+    if (!fromDate && !toDate) {
+      const today = new Date();
+      const weekStart = getISOWeekStart(today);
+      const weekEnd = getWeekEndDate(weekStart);
+      setChartTitle(`Submissions — Week of ${getWeekLabel(weekStart, weekEnd)}`);
+    } else if (fromDate && toDate) {
+      if (dayCount && dayCount <= 7) {
+        setChartTitle(`Submissions — ${fromDate} to ${toDate}`);
+      } else {
+        setChartTitle(`Submissions — ${fromDate} to ${toDate}`);
+      }
+    }
+  }, [fromDate, toDate, dayCount]);
+
+  const handlePreviousWeek = () => {
+    if (!fromDate && !toDate) {
+      const today = new Date();
+      const weekStart = getISOWeekStart(today);
+      const prevWeekStart = new Date(weekStart);
+      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+      const prevWeekEnd = getWeekEndDate(prevWeekStart);
+
+      setFromDate(formatDateForInput(prevWeekStart));
+      setToDate(formatDateForInput(prevWeekEnd));
+    } else if (fromDate && toDate) {
+      const currentStart = new Date(fromDate);
+      const prevWeekStart = new Date(currentStart);
+      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+      const prevWeekEnd = new Date(prevWeekStart);
+      prevWeekEnd.setDate(prevWeekEnd.getDate() + 6);
+
+      setFromDate(formatDateForInput(prevWeekStart));
+      setToDate(formatDateForInput(prevWeekEnd));
+    }
+  };
+
+  const handleNextWeek = () => {
+    if (!fromDate && !toDate) {
+      const today = new Date();
+      const weekStart = getISOWeekStart(today);
+      const nextWeekStart = new Date(weekStart);
+      nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+      const nextWeekEnd = getWeekEndDate(nextWeekStart);
+
+      setFromDate(formatDateForInput(nextWeekStart));
+      setToDate(formatDateForInput(nextWeekEnd));
+    } else if (fromDate && toDate) {
+      const currentStart = new Date(fromDate);
+      const nextWeekStart = new Date(currentStart);
+      nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+      const nextWeekEnd = new Date(nextWeekStart);
+      nextWeekEnd.setDate(nextWeekEnd.getDate() + 6);
+
+      setFromDate(formatDateForInput(nextWeekStart));
+      setToDate(formatDateForInput(nextWeekEnd));
+    }
+  };
 
   const hasTrendData = trendRows.some((row) => row.count > 0);
-  const hasPerFormData = perFormRows.some((row) => row.totalResponses > 0);
-
-  const trendData = useMemo(
-    () => ({
-      labels: trendRows.map((row) => formatDateLabel(row.date)),
-      datasets: [
-        {
-          label: "Submissions",
-          data: trendRows.map((row) => row.count),
-          backgroundColor: chartPalette.primary,
-          borderRadius: 6,
-        },
-      ],
-    }),
-    [trendRows, chartPalette],
-  );
-
-  const perFormData = useMemo(
-    () => ({
-      labels: perFormRows.map((row) => row.title),
-      datasets: [
-        {
-          label: "Average Rating",
-          data: perFormRows.map((row) => row.averageRating),
-          backgroundColor: chartPalette.success,
-          borderRadius: 6,
-        },
-      ],
-    }),
-    [perFormRows, chartPalette],
-  );
-
-  const formAssessments = useMemo(
-    () =>
-      perFormRows.map((row) => ({
-        ...row,
-        ...assessPerformance(row.averageRating, row.totalResponses),
-      })),
-    [perFormRows],
-  );
-
-  const assessmentSummary = useMemo(() => {
-    const positive = formAssessments.filter((row) => row.status === "positive").length;
-    const neutral = formAssessments.filter((row) => row.status === "neutral").length;
-    const negative = formAssessments.filter((row) => row.status === "negative").length;
-    return { positive, neutral, negative };
-  }, [formAssessments]);
 
   const exportBaseQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -233,11 +321,8 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
     if (toDate) {
       params.set("to", toDate);
     }
-    if (debouncedEmployee.trim()) {
-      params.set("assistedEmployee", debouncedEmployee.trim());
-    }
     return params;
-  }, [selectedForm, fromDate, toDate, debouncedEmployee]);
+  }, [selectedForm, fromDate, toDate]);
 
   function exportHref(mode: "summary", format: "excel" | "pdf"): string {
     const params = new URLSearchParams(exportBaseQuery);
@@ -248,102 +333,93 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
 
   return (
     <section className="space-y-6 rounded-2xl border border-border bg-surface p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="space-y-1">
-            <label htmlFor="form-filter" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-              Form
-            </label>
-            <select
-              id="form-filter"
-              value={selectedForm}
-              onChange={(event) => setSelectedForm(event.target.value)}
-              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <label htmlFor="form-filter" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Form
+              </label>
+              <select
+                id="form-filter"
+                value={selectedForm}
+                onChange={(event) => setSelectedForm(event.target.value)}
+                className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
+              >
+                <option value="all">All forms</option>
+                {forms.map((form) => (
+                  <option key={form.formId} value={String(form.formId)}>
+                    {form.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="from-date" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                From
+              </label>
+              <input
+                id="from-date"
+                type="date"
+                value={fromDate}
+                onChange={(event) => setFromDate(event.target.value)}
+                className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="to-date" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                To
+              </label>
+              <input
+                id="to-date"
+                type="date"
+                value={toDate}
+                onChange={(event) => setToDate(event.target.value)}
+                className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedForm("all");
+                setFromDate("");
+                setToDate("");
+              }}
+              className="rounded-xl border border-border px-3 py-2.5 text-sm font-semibold text-text-default hover:bg-surface-soft"
             >
-              <option value="all">All forms</option>
-              {forms.map((form) => (
-                <option key={form.formId} value={String(form.formId)}>
-                  {form.title}
-                </option>
-              ))}
-            </select>
+              Reset
+            </button>
           </div>
-          <div className="space-y-1">
-            <label htmlFor="from-date" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-              From
-            </label>
-            <input
-              id="from-date"
-              type="date"
-              value={fromDate}
-              onChange={(event) => setFromDate(event.target.value)}
-              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
-            />
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePreviousWeek}
+              className="rounded-xl border border-border p-2 text-text-default hover:bg-surface-soft"
+              title="Previous week"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              onClick={handleNextWeek}
+              className="rounded-xl border border-border p-2 text-text-default hover:bg-surface-soft"
+              title="Next week"
+            >
+              <ChevronRight size={18} />
+            </button>
           </div>
-          <div className="space-y-1">
-            <label htmlFor="to-date" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-              To
-            </label>
-            <input
-              id="to-date"
-              type="date"
-              value={toDate}
-              onChange={(event) => setToDate(event.target.value)}
-              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
-            />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="assisted-employee" className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-              Assisted Employee
-            </label>
-            <input
-              id="assisted-employee"
-              value={assistedEmployee}
-              onChange={(event) => setAssistedEmployee(event.target.value)}
-              placeholder="Name"
-              className="rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-default"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedForm("all");
-              setFromDate("");
-              setToDate("");
-              setAssistedEmployee("");
-            }}
-            className="rounded-xl border border-border px-3 py-2.5 text-sm font-semibold text-text-default hover:bg-surface-soft"
-          >
-            Reset
-          </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <a
-            href={exportHref("summary", "excel")}
-            className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default hover:bg-surface-soft"
-          >
-            Summary Excel
-          </a>
-          <a
-            href={exportHref("summary", "pdf")}
-            className="rounded-xl border border-border px-3 py-2 text-xs font-semibold text-text-default hover:bg-surface-soft"
-          >
-            Summary PDF
-          </a>
-        </div>
+        {loading ? <p className="text-xs text-text-muted">Loading analytics...</p> : null}
+        {errorMessage ? <p className="text-xs text-error">{errorMessage}</p> : null}
       </div>
-
-      {loading ? <p className="text-xs text-text-muted">Loading analytics...</p> : null}
-      {errorMessage ? <p className="text-xs text-error-fg">{errorMessage}</p> : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-surface-soft p-4">
-          <h2 className="mb-3 text-sm font-semibold text-text-default">Submission Trend</h2>
+          <h2 className="mb-3 text-sm font-semibold text-text-default">{chartTitle}</h2>
           {hasTrendData ? (
             <div className="h-72">
               <Bar
-                data={trendData}
+                data={chartData}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
@@ -373,28 +449,30 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface-soft p-4">
-          <h2 className="mb-3 text-sm font-semibold text-text-default">Form Ratings</h2>
-          {hasPerFormData ? (
+        {perFormSubmissions && perFormSubmissions.length > 0 ? (
+          <div className="rounded-2xl border border-border bg-surface-soft p-4">
+            <h2 className="mb-3 text-sm font-semibold text-text-default">Submissions by Form</h2>
             <div className="h-72">
               <Bar
-                data={perFormData}
+                data={{
+                  labels: perFormSubmissions.map((f) => f.title),
+                  datasets: [
+                    {
+                      label: "Submissions",
+                      data: perFormSubmissions.map((f) => f.submissions),
+                      backgroundColor: chartPalette.primary,
+                      borderRadius: 6,
+                    },
+                  ],
+                }}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
                   scales: {
-                    x: {
-                      ticks: {
-                        maxRotation: 40,
-                        minRotation: 20,
-                      },
-                    },
                     y: {
                       beginAtZero: true,
-                      min: 0,
-                      max: 5,
                       ticks: {
-                        stepSize: 1,
+                        precision: 0,
                       },
                     },
                   },
@@ -409,58 +487,16 @@ export function AnalyticsCharts({ forms, trend, perForm }: AnalyticsChartsProps)
                 }}
               />
             </div>
-          ) : (
-            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-text-muted">
-              No form rating data for the current filters.
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-surface-soft p-4">
-        <h2 className="mb-4 text-sm font-semibold text-text-default">Form Health Snapshot</h2>
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
-          <span className="rounded-full bg-success/18 px-2.5 py-1 text-success">Positive: {assessmentSummary.positive}</span>
-          <span className="rounded-full bg-warning/20 px-2.5 py-1 text-text-primary">Neutral: {assessmentSummary.neutral}</span>
-          <span className="rounded-full bg-danger/18 px-2.5 py-1 text-danger">Negative: {assessmentSummary.negative}</span>
-        </div>
-
-        {formAssessments.length > 0 ? (
-          <ul className="space-y-2">
-            {formAssessments.map((row) => (
-              <li key={row.formId} className="flex items-center justify-between rounded-xl bg-surface px-3 py-2 text-sm">
-                <span className="font-medium text-text-default">{row.title}</span>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold text-text-default ring-1 ring-border-default">
-                    {row.averageRating.toFixed(2)} ({row.totalResponses})
-                  </span>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-semibold whitespace-nowrap ${
-                      row.status === "positive"
-                        ? "bg-success/18 text-success"
-                        : row.status === "neutral"
-                          ? "bg-warning/20 text-text-primary"
-                          : row.status === "negative"
-                            ? "bg-danger/18 text-danger"
-                            : "bg-surface-muted text-text-muted"
-                    }`}
-                  >
-                    {row.label}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-text-muted">
-            No form assessments available for the current filters.
-          </p>
+          <div className="rounded-2xl border border-border bg-surface-soft p-4">
+            <h2 className="mb-3 text-sm font-semibold text-text-default">Submissions by Form</h2>
+            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-text-muted">
+              No form data available.
+            </p>
+          </div>
         )}
       </div>
-
-      {selectedForm !== "all" || fromDate || toDate || assistedEmployee.trim() ? (
-        <p className="text-xs text-text-muted">Filters applied to analytics.</p>
-      ) : null}
     </section>
   );
 }

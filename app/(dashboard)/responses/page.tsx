@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { SentimentBadge } from "@/components/ui/SentimentBadge";
 import type { SentimentType } from "@/types";
+import { LiveRefresh } from "@/components/ui/live-refresh";
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -84,8 +85,12 @@ export default async function ResponsesPage({
 
   return (
     <section className="space-y-6">
+      <LiveRefresh />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-text-default">Form Responses</h1>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-text-muted">Live Responses</p>
+          <h1 className="text-2xl font-semibold text-text-default">Form Responses</h1>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={buildResponsesHref("all")}

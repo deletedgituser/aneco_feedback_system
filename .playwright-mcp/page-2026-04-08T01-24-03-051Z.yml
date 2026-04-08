@@ -1,0 +1,18 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img "ANECO logo" [ref=e6]
+      - generic [ref=e7]:
+        - heading "Aneco Survey Form" [level=1] [ref=e8]
+        - paragraph [ref=e9]: "Kiosk mode: choose a form and share your smiley feedback."
+    - article [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Customer Feedback Form" [level=2] [ref=e13]
+        - generic [ref=e14]: EN
+      - paragraph [ref=e15]: Please rate our services. Your feedback is valuable to us, just select the rate of your choice. Thank you very much.
+      - generic [ref=e16]:
+        - generic [ref=e17]: 4/8/2026
+        - link "Open" [ref=e18] [cursor=pointer]:
+          - /url: /kiosk/forms/1
+          - text: Open
+          - img [ref=e19]

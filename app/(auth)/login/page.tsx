@@ -16,7 +16,7 @@ export default async function LoginPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-10">
       <section className="w-full rounded-2xl border border-border bg-surface p-8 shadow-[0_16px_40px_-22px_rgba(31,45,44,0.35)]">
         <div className="mb-6 flex items-center gap-3">
-          <Image src="/logo.png" alt="ANECO logo" width={42} height={42} className="rounded-full bg-surface-soft p-1" />
+          <Image src="/logo.png" alt="ANECO logo" width={42} height={42} className="rounded-full p-1" />
           <div>
             <h1 className="text-xl font-semibold text-text-default">ANECO Feedback System</h1>
             <p className="text-xs uppercase tracking-wide text-text-muted">Secure access for admin and personnel</p>
