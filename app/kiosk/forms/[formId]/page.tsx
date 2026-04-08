@@ -160,13 +160,13 @@ export default async function KioskFormPage({
         </div>
 
         <div className="relative mb-1 flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-text-default sm:text-4xl">{activeForm.title}</h1>
+          <h1 className="text-xl font-bold tracking-tight text-text-default sm:text-3xl">{activeForm.title}</h1>
           <span className="hidden rounded-full bg-accent/24 px-3 py-1 text-xs font-bold uppercase tracking-wide text-text-default ring-1 ring-accent/30 sm:inline-flex">
             {activeForm.language.toUpperCase()}
           </span>
         </div>
 
-        <p className="relative mt-2 text-base leading-relaxed text-text-secondary sm:text-lg">{activeForm.description}</p>
+        <p className="relative mt-2 text-sm leading-relaxed text-text-secondary sm:text-base">{activeForm.description}</p>
         <div className="relative mt-5 rounded-2xl border border-border bg-surface-soft px-4 py-3 text-sm text-text-default">
           <p className="font-bold uppercase">{text.ratingGuideTitle}</p>
           <p className="mt-1 text-sm sm:text-base">{text.ratingGuideBody}</p>

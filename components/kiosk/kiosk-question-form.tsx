@@ -164,11 +164,11 @@ export function KioskQuestionForm({
                           {text.questionLabel} {question.index} {text.of} {activeForm.questions.length}
                         </p>
 
-                        <p className="mt-3 text-lg font-bold leading-snug text-text-default sm:text-xl">
+                        <p className="mt-3 text-base font-bold leading-snug text-text-default sm:text-lg">
                           {question.label}
                         </p>
                         {question.description ? (
-                          <p className="mt-2 text-sm font-normal leading-relaxed text-text-secondary sm:text-base">
+                          <p className="mt-2 text-sm font-normal leading-relaxed text-text-secondary">
                             {question.description}
                           </p>
                         ) : null}
@@ -181,7 +181,7 @@ export function KioskQuestionForm({
                             <label
                               key={option.score}
                               className={[
-                                "inline-flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center text-sm",
+                                "inline-flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center text-xs sm:text-sm",
                                 "transition-colors duration-150 ease-in-out motion-reduce:transition-none",
                                 "hover:border-primary hover:bg-surface active:bg-surface",
                                 isActive
@@ -202,7 +202,7 @@ export function KioskQuestionForm({
                               <span className="text-xl leading-none" aria-hidden="true">
                                 {option.emoji}
                               </span>
-                              <span className="text-sm font-bold text-text-default">{option.score}</span>
+                              <span className="text-xs font-bold text-text-default sm:text-sm">{option.score}</span>
                             </label>
                           );
                         })}
@@ -225,11 +225,11 @@ export function KioskQuestionForm({
                     {text.questionLabel} {activeForm.questions.length} {text.of} {activeForm.questions.length}
                   </p>
 
-                  <p className="mt-3 text-lg font-bold leading-snug text-text-default sm:text-xl">
+                  <p className="mt-3 text-base font-bold leading-snug text-text-default sm:text-lg">
                     {overallQuestion.label}
                   </p>
                   {overallQuestion.description ? (
-                    <p className="mt-2 text-sm font-normal leading-relaxed text-text-secondary sm:text-base">
+                    <p className="mt-2 text-sm font-normal leading-relaxed text-text-secondary">
                       {overallQuestion.description}
                     </p>
                   ) : null}
@@ -242,7 +242,7 @@ export function KioskQuestionForm({
                       <label
                         key={option.score}
                         className={[
-                          "inline-flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center text-sm",
+                          "inline-flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center text-xs sm:text-sm",
                           "transition-colors duration-150 ease-in-out motion-reduce:transition-none",
                           "hover:border-primary hover:bg-surface active:bg-surface",
                           isActive
@@ -263,7 +263,7 @@ export function KioskQuestionForm({
                         <span className="text-xl leading-none" aria-hidden="true">
                           {option.emoji}
                         </span>
-                        <span className="text-sm font-bold text-text-default">{option.score}</span>
+                        <span className="text-xs font-bold text-text-default sm:text-sm">{option.score}</span>
                       </label>
                     );
                   })}

@@ -36,8 +36,8 @@ export default async function KioskLandingPage() {
               />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-text-default sm:text-5xl">Aneco Survey Form</h1>
-              <p className="mt-2 text-base text-text-secondary sm:text-lg">Select a form below and share your smiley feedback.</p>
+              <h1 className="text-3xl font-bold tracking-tight text-text-default sm:text-4xl">Aneco Survey Form</h1>
+              <p className="mt-2 text-sm text-text-secondary sm:text-base">Select a form below and share your smiley feedback.</p>
             </div>
           </div>
 
@@ -63,7 +63,7 @@ export default async function KioskLandingPage() {
                     {form.title.toLowerCase().includes("intern") ? <Users size={24} /> : <MessageSquareText size={24} />}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-semibold text-text-default">{form.title}</h2>
+                    <h2 className="text-xl font-semibold text-text-default">{form.title}</h2>
                   </div>
                 </div>
 
@@ -72,7 +72,7 @@ export default async function KioskLandingPage() {
                 </span>
               </div>
 
-              <p className="mt-4 flex-grow text-lg leading-relaxed text-text-secondary">{form.description ?? "No description provided."}</p>
+              <p className="mt-4 flex-grow text-base leading-relaxed text-text-secondary">{form.description ?? "No description provided."}</p>
 
               <div className="mt-5 flex items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-text-muted">
