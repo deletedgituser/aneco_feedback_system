@@ -250,7 +250,6 @@ export async function GET(request: NextRequest) {
 
     // Table - adjusted for portrait mode with much wider question column
     const colWidths = [22, 250, 30, 30, 30, 30, 30, 20, 50, 50];
-    const totalWidth = colWidths.reduce((a, b) => a + b, 0);
     const startX = margin;
     let x = startX;
 
@@ -312,7 +311,7 @@ export async function GET(request: NextRequest) {
       totalGrandSD = 0,
       totalGrandNA = 0;
 
-    for (const [qId, tally] of tallyMap) {
+    for (const [, tally] of tallyMap) {
       if (y < 50) {
         page = pdfDoc.addPage([595.28, 842.51]);
         y = page.getHeight() - margin;
@@ -356,7 +355,7 @@ export async function GET(request: NextRequest) {
       const satisfactionPercentage =
         answeredCount === 0
           ? "—"
-          : `${(((tally.stronglyAgree + tally.agree) / answeredCount) * 100).toFixed(2)}%`;
+          : `${(((tally.stronglyAgree + tally.agree + tally.neutral) / answeredCount) * 100).toFixed(2)}%`;
 
       totalGrandSA += tally.stronglyAgree;
       totalGrandA += tally.agree;
@@ -427,7 +426,7 @@ export async function GET(request: NextRequest) {
     const grandSatisfactionPercentage =
       grandAnsweredCount === 0
         ? "—"
-        : `${(((totalGrandSA + totalGrandA) / grandAnsweredCount) * 100).toFixed(2)}%`;
+        : `${(((totalGrandSA + totalGrandA + totalGrandN) / grandAnsweredCount) * 100).toFixed(2)}%`;
 
     // Draw footer background
     x = startX;

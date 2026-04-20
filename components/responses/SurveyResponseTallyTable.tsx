@@ -17,13 +17,13 @@ interface SurveyResponseTallyTableProps {
   rows: TallyRow[];
 }
 
-function calculateOverallPercentage(stronglyAgree: number, agree: number, totalResponses: number, notAnswered: number): string {
+function calculateOverallPercentage(stronglyAgree: number, agree: number, neutral: number, totalResponses: number, notAnswered: number): string {
   const answeredCount = totalResponses - notAnswered;
   if (answeredCount === 0) {
     return "—";
   }
-  const satisfiedCount = stronglyAgree + agree;
-  const percentage = (satisfiedCount / answeredCount) * 100;
+  const favorableCount = stronglyAgree + agree + neutral;
+  const percentage = (favorableCount / answeredCount) * 100;
   return `${percentage.toFixed(2)}%`;
 }
 
@@ -68,14 +68,14 @@ export function SurveyResponseTallyTable({ rows }: SurveyResponseTallyTableProps
   });
 
   const totalResponses = totals.stronglyAgree + totals.agree + totals.neutral + totals.disagree + totals.stronglyDisagree + totals.notAnswered;
-  const aggregateOverallPercentage = calculateOverallPercentage(totals.stronglyAgree, totals.agree, totalResponses, totals.notAnswered);
+  const aggregateOverallPercentage = calculateOverallPercentage(totals.stronglyAgree, totals.agree, totals.neutral, totalResponses, totals.notAnswered);
 
   if (isMobile) {
     return (
       <div className="space-y-4">
         {rows.map((row, index) => {
           const rowTotal = row.stronglyAgree + row.agree + row.neutral + row.disagree + row.stronglyDisagree + row.notAnswered;
-          const overallPercentage = calculateOverallPercentage(row.stronglyAgree, row.agree, rowTotal, row.notAnswered);
+          const overallPercentage = calculateOverallPercentage(row.stronglyAgree, row.agree, row.neutral, rowTotal, row.notAnswered);
           return (
             <div key={row.questionId} className="rounded-xl border border-border bg-surface-soft p-4 space-y-2">
               <h3 className="font-semibold text-text-default">
@@ -142,7 +142,7 @@ export function SurveyResponseTallyTable({ rows }: SurveyResponseTallyTableProps
         <tbody>
           {rows.map((row, index) => {
             const rowTotal = row.stronglyAgree + row.agree + row.neutral + row.disagree + row.stronglyDisagree + row.notAnswered;
-            const overallPercentage = calculateOverallPercentage(row.stronglyAgree, row.agree, rowTotal, row.notAnswered);
+            const overallPercentage = calculateOverallPercentage(row.stronglyAgree, row.agree, row.neutral, rowTotal, row.notAnswered);
             return (
               <tr key={row.questionId} className={index % 2 === 0 ? "bg-surface" : "bg-surface-soft"}>
                 <td className="px-3 py-3 text-center text-text-default font-medium">{index + 1}</td>
