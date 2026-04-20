@@ -252,7 +252,7 @@ export default async function AdminFormResponsesPage({ params, searchParams }: F
   // Compute tally data for each question
   const tallyMap = new Map<number, TallyRow>();
   for (const question of questionRows) {
-    tallyMap.set(question.questionId, {
+    tallyMap.set(question.questionId, { 
       questionId: question.questionId,
       questionLabel: question.label,
       stronglyAgree: 0,
