@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { apiError, apiSuccess } from "@/lib/api/response";
+import { parsePositiveInt } from "@/lib/api/request";
+import { getFormTitleById } from "@/lib/services/form-service";
 
 type Params = {
   params: Promise<{ formId: string }>;
@@ -7,20 +8,17 @@ type Params = {
 
 export async function GET(_: Request, { params }: Params) {
   const { formId: formIdParam } = await params;
-  const formId = Number(formIdParam);
+  const formId = parsePositiveInt(formIdParam);
 
-  if (!Number.isInteger(formId) || formId <= 0) {
-    return NextResponse.json({ message: "Invalid form id." }, { status: 400 });
+  if (!formId) {
+    return apiError("Invalid form id.", 400, "INVALID_FORM_ID");
   }
 
-  const form = await prisma.form.findUnique({
-    where: { formId },
-    select: { title: true },
-  });
+  const title = await getFormTitleById(formId);
 
-  if (!form) {
-    return NextResponse.json({ message: "Form not found." }, { status: 404 });
+  if (!title) {
+    return apiError("Form not found.", 404, "FORM_NOT_FOUND");
   }
 
-  return NextResponse.json({ title: form.title });
+  return apiSuccess({ title });
 }

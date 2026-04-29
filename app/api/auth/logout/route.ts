@@ -1,13 +1,10 @@
-import { NextResponse } from "next/server";
-import { clearSessionCookie, getSessionPayload, revokeSession } from "@/lib/auth/session";
+import { apiSuccess } from "@/lib/api/response";
+import { getSessionPayload } from "@/lib/auth/session";
+import { logoutCurrentSession } from "@/lib/services/auth-service";
 
 export async function POST() {
   const payload = await getSessionPayload();
-  if (payload?.sid) {
-    await revokeSession(payload.sid);
-  }
+  await logoutCurrentSession(payload?.sid);
 
-  await clearSessionCookie();
-
-  return NextResponse.json({ ok: true });
+  return apiSuccess({ ok: true });
 }
