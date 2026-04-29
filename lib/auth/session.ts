@@ -2,25 +2,10 @@ import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-
-type UserRole = "admin" | "personnel";
-
-type SessionPayload = {
-  sid: string;
-  role: UserRole;
-  adminId?: number;
-  personnelId?: number;
-};
+import type { SessionPayload, UserRole } from "@/types/api";
+import { getBearerToken, getCookieToken, getJwtSecret, verifySessionToken } from "@/lib/auth/token";
 
 const SESSION_COOKIE = "aneco_session";
-
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error("Missing JWT_SECRET environment variable.");
-  }
-  return secret;
-}
 
 export async function createSession(input: {
   role: UserRole;
@@ -81,11 +66,19 @@ export async function getSessionPayload(): Promise<SessionPayload | null> {
     return null;
   }
 
-  try {
-    return jwt.verify(token, getJwtSecret()) as SessionPayload;
-  } catch {
+  return verifySessionToken(token);
+}
+
+export async function getSessionPayloadFromRequest(request: Request): Promise<SessionPayload | null> {
+  const bearerToken = getBearerToken(request.headers.get("authorization"));
+  const cookieToken = getCookieToken(request.headers.get("cookie"), SESSION_COOKIE);
+  const token = bearerToken ?? cookieToken;
+
+  if (!token) {
     return null;
   }
+
+  return verifySessionToken(token);
 }
 
 export async function revokeSession(tokenId: string): Promise<void> {

@@ -1,22 +1,60 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { verifySessionToken } from "@/lib/auth/token";
+import type { SessionPayload } from "@/types/api";
 
-type SessionPayload = {
-  sid: string;
-  role: "admin" | "personnel";
-};
+const API_METHODS = "GET,POST,PUT,PATCH,DELETE,OPTIONS";
+const API_HEADERS = "Authorization, Content-Type, X-Requested-With";
 
-function decodeSessionToken(token: string): SessionPayload | null {
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET ?? "") as SessionPayload;
-  } catch {
-    return null;
+function getAllowedOrigins(): string[] {
+  const envValue = process.env.CORS_ALLOWED_ORIGINS;
+  if (!envValue) {
+    return [];
   }
+
+  return envValue
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+function getCorsHeaders(origin: string | null): Headers {
+  const headers = new Headers();
+  const allowedOrigins = getAllowedOrigins();
+  const allowAnyOrigin = allowedOrigins.includes("*");
+  const allowOrigin =
+    origin && (allowAnyOrigin || allowedOrigins.includes(origin))
+      ? origin
+      : allowedOrigins[0] ?? "";
+
+  if (allowOrigin) {
+    headers.set("Access-Control-Allow-Origin", allowOrigin);
+    headers.set("Vary", "Origin");
+  }
+
+  headers.set("Access-Control-Allow-Credentials", "true");
+  headers.set("Access-Control-Allow-Methods", API_METHODS);
+  headers.set("Access-Control-Allow-Headers", API_HEADERS);
+
+  return headers;
 }
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/api")) {
+    const headers = getCorsHeaders(request.headers.get("origin"));
+
+    if (request.method === "OPTIONS") {
+      return new NextResponse(null, { status: 204, headers });
+    }
+
+    const response = NextResponse.next();
+    headers.forEach((value, key) => {
+      response.headers.set(key, value);
+    });
+    return response;
+  }
 
   if (
     !pathname.startsWith("/dashboard") &&
@@ -32,7 +70,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  const payload = decodeSessionToken(token);
+  const payload = verifySessionToken(token);
   if (!payload) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -57,5 +95,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/forms/:path*", "/responses/:path*", "/admin/:path*"],
+  matcher: ["/api/:path*", "/dashboard/:path*", "/forms/:path*", "/responses/:path*", "/admin/:path*"],
 };

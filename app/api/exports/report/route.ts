@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { prisma } from "@/lib/prisma";
-import { getSessionPayload, isSessionActive } from "@/lib/auth/session";
+import { apiError } from "@/lib/api/response";
+import { requireRequestSession } from "@/lib/api/auth";
+import { parseOptionalDateRange, parsePositiveInt } from "@/lib/api/request";
+import { getReportFeedbackRows } from "@/lib/services/export-service";
 
 export const runtime = "nodejs";
 
@@ -18,33 +20,6 @@ type DetailedRow = {
   question: string;
   rating: number;
 };
-
-function toDateRange(searchParams: URLSearchParams) {
-  const from = searchParams.get("from");
-  const to = searchParams.get("to");
-
-  const parsedFrom = from ? new Date(from) : null;
-  const parsedTo = to ? new Date(to) : null;
-
-  return {
-    from: parsedFrom && !Number.isNaN(parsedFrom.getTime()) ? parsedFrom : null,
-    to: parsedTo && !Number.isNaN(parsedTo.getTime()) ? parsedTo : null,
-  };
-}
-
-async function requirePersonnelSession() {
-  const payload = await getSessionPayload();
-  if (!payload?.sid || payload.role !== "personnel" || !payload.personnelId) {
-    return null;
-  }
-
-  const active = await isSessionActive(payload.sid);
-  if (!active) {
-    return null;
-  }
-
-  return payload;
-}
 
 function parseMode(searchParams: URLSearchParams): ReportMode {
   const mode = searchParams.get("mode");
@@ -129,58 +104,24 @@ async function renderPdf(contentRows: string[], title: string): Promise<Uint8Arr
 }
 
 export async function GET(request: NextRequest) {
-  const session = await requirePersonnelSession();
-  if (!session) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const sessionResult = await requireRequestSession(request, ["personnel"]);
+  if (!sessionResult.ok) {
+    return sessionResult.response;
   }
 
   const searchParams = request.nextUrl.searchParams;
   const mode = parseMode(searchParams);
   const format = parseFormat(searchParams);
 
-  const formId = Number(searchParams.get("formId"));
+  const formId = parsePositiveInt(searchParams.get("formId"));
   const assistedEmployee = searchParams.get("assistedEmployee")?.trim();
-  const { from, to } = toDateRange(searchParams);
+  const { from, to } = parseOptionalDateRange(searchParams);
 
-  const feedbackWhere = {
-    ...(Number.isInteger(formId) && formId > 0 ? { formId } : {}),
-    ...(assistedEmployee ? { assistedEmployee } : {}),
-    ...(from || to
-      ? {
-          submittedAt: {
-            ...(from ? { gte: from } : {}),
-            ...(to ? { lte: to } : {}),
-          },
-        }
-      : {}),
-  };
-
-  const feedbackRows = await prisma.feedback.findMany({
-    where: feedbackWhere,
-    orderBy: { submittedAt: "asc" },
-    select: {
-      submittedAt: true,
-      userName: true,
-      assistedEmployee: true,
-      comments: true,
-      form: {
-        select: {
-          formId: true,
-          title: true,
-        },
-      },
-      responses: {
-        select: {
-          answerValue: true,
-          question: {
-            select: {
-              questionId: true,
-              label: true,
-            },
-          },
-        },
-      },
-    },
+  const feedbackRows = await getReportFeedbackRows({
+    formId: formId ?? undefined,
+    assistedEmployee: assistedEmployee || undefined,
+    from: from ?? undefined,
+    to: to ?? undefined,
   });
 
   const detailedRows: DetailedRow[] = [];
@@ -193,7 +134,7 @@ export async function GET(request: NextRequest) {
         assistedEmployee: feedback.assistedEmployee ?? "",
         comments: feedback.comments ?? "",
         question: response.question.label,
-        rating: response.answerValue,
+        rating: response.answerValue ?? 0,
       });
     }
   }

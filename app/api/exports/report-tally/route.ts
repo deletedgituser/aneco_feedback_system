@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { prisma } from "@/lib/prisma";
-import { getSessionPayload, isSessionActive } from "@/lib/auth/session";
+import { apiError } from "@/lib/api/response";
+import { requireRequestSession } from "@/lib/api/auth";
+import { parsePositiveInt } from "@/lib/api/request";
+import { getActorDisplayName, getTallyFormById, getTallyRows } from "@/lib/services/export-service";
 
 export const runtime = "nodejs";
 
@@ -34,107 +36,30 @@ function wrapTextLines(text: string, maxCharsPerLine: number = 18): string[] {
   return lines;
 }
 
-async function requirePersonnelSession() {
-  const payload = await getSessionPayload();
-  // FIX: Allow both personnel and admin roles to export reports
-  if (!payload?.sid || (payload.role !== "personnel" && payload.role !== "admin")) {
-    return null;
-  }
-  if (payload.role === "personnel" && !payload.personnelId) {
-    return null;
-  }
-  if (payload.role === "admin" && !payload.adminId) {
-    return null;
-  }
-
-  const active = await isSessionActive(payload.sid);
-  if (!active) {
-    return null;
-  }
-
-  return payload;
-}
-
 export async function GET(request: NextRequest) {
-  const sessionPayload = await requirePersonnelSession();
-  if (!sessionPayload) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const sessionResult = await requireRequestSession(request, ["personnel", "admin"]);
+  if (!sessionResult.ok) {
+    return sessionResult.response;
   }
 
   const searchParams = request.nextUrl.searchParams;
-  const formId = Number(searchParams.get("formId"));
+  const formId = parsePositiveInt(searchParams.get("formId"));
 
-  if (!Number.isInteger(formId) || formId <= 0) {
-    return NextResponse.json({ error: "Invalid form ID" }, { status: 400 });
+  if (!formId) {
+    return apiError("Invalid form ID", 400, "INVALID_FORM_ID");
   }
 
   // Fetch form data
-  const form = await prisma.form.findUnique({
-    where: { formId },
-    select: {
-      formId: true,
-      title: true,
-    },
-  });
+  const form = await getTallyFormById(formId);
 
   if (!form) {
-    return NextResponse.json({ error: "Form not found" }, { status: 404 });
+    return apiError("Form not found", 404, "FORM_NOT_FOUND");
   }
 
-  // Fetch personnel or admin name based on role
-  let userName = "Unknown User";
-  if (sessionPayload.role === "personnel" && sessionPayload.personnelId) {
-    const personnel = await prisma.personnel.findUnique({
-      where: { personnelId: sessionPayload.personnelId },
-      select: { name: true },
-    });
-    if (personnel) {
-      userName = personnel.name;
-    }
-  } else if (sessionPayload.role === "admin" && sessionPayload.adminId) {
-    const admin = await prisma.admin.findUnique({
-      where: { adminId: sessionPayload.adminId },
-      select: { username: true },
-    });
-    if (admin) {
-      userName = admin.username;
-    }
-  }
+  const userName = await getActorDisplayName(sessionResult.payload);
 
-  // Fetch all responses and feedback for the form
-  const feedbackRows = await prisma.feedback.findMany({
-    where: { formId },
-    select: {
-      feedbackId: true,
-      submittedAt: true,
-    },
-  });
-
-  const feedbackIds = feedbackRows.map((row) => row.feedbackId);
+  const { feedbackRows, questionRows, allResponses } = await getTallyRows(formId);
   const totalResponses = feedbackRows.length;
-
-  const questionRows = await prisma.question.findMany({
-    where: { formId },
-    orderBy: { displayOrder: "asc" },
-    select: {
-      questionId: true,
-      label: true,
-    },
-  });
-
-  const allResponses = feedbackIds.length
-    ? await prisma.response.findMany({
-        where: {
-          feedbackId: {
-            in: feedbackIds,
-          },
-        },
-        select: {
-          questionId: true,
-          answerValue: true,
-        },
-      })
-    : [];
 
   // Build tally data
   const tallyMap = new Map<
@@ -488,9 +413,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("PDF generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate PDF" },
-      { status: 500 }
-    );
+    return apiError("Failed to generate PDF", 500, "PDF_GENERATION_FAILED");
   }
 }
