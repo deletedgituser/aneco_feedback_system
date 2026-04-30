@@ -66,7 +66,9 @@ export default async function ResponsesPage({
     const allRatings: number[] = [];
     form.feedbacks.forEach((feedback) => {
       feedback.responses.forEach((response) => {
-        allRatings.push(response.answerValue);
+        if (response.answerValue !== null) {
+          allRatings.push(response.answerValue);
+        }
       });
     });
 

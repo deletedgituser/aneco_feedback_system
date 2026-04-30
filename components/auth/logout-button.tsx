@@ -8,10 +8,11 @@ type LogoutButtonProps = {
   label?: string;
   className?: string;
   iconOnly?: boolean;
+  collapseLabelOnDesktop?: boolean;
   tone?: "default" | "sidebar";
 };
 
-export function LogoutButton({ label = "Logout", className = "", iconOnly = false, tone = "default" }: LogoutButtonProps) {
+export function LogoutButton({ label = "Logout", className = "", iconOnly = false, collapseLabelOnDesktop = false, tone = "default" }: LogoutButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +22,7 @@ export function LogoutButton({ label = "Logout", className = "", iconOnly = fals
       await fetch("/api/auth/logout", {
         method: "POST",
       });
-      router.push("/login");
+      router.push("/login?toastType=success&toastMessage=Logged+out+successfully.");
       router.refresh();
     } finally {
       setLoading(false);
@@ -41,7 +42,7 @@ export function LogoutButton({ label = "Logout", className = "", iconOnly = fals
       } ${className}`}
     >
       <LogOut size={16} />
-      {iconOnly ? null : loading ? "Signing out..." : label}
+      {iconOnly ? null : <span className={collapseLabelOnDesktop ? "md:hidden" : undefined}>{loading ? "Signing out..." : label}</span>}
     </button>
   );
 }

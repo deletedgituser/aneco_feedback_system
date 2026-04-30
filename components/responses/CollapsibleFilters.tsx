@@ -9,6 +9,7 @@ interface CollapsibleFiltersProps {
   respondent: string;
   assistedEmployee: string;
   formId: number;
+  basePath?: string;
 }
 
 export function CollapsibleFilters({
@@ -17,6 +18,7 @@ export function CollapsibleFilters({
   respondent,
   assistedEmployee,
   formId,
+  basePath = `/responses/${formId}`,
 }: CollapsibleFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -99,7 +101,7 @@ export function CollapsibleFilters({
               Apply
             </button>
             <a
-              href={`/responses/${formId}`}
+              href={basePath}
               className="flex-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-text-default hover:bg-surface-soft text-center"
             >
               Reset

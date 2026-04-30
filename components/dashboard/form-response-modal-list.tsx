@@ -13,7 +13,7 @@ type SubmissionItem = {
   sentiment: SentimentType;
   responses: Array<{
     responseId: number;
-    answerValue: number;
+    answerValue: number | null;
     questionLabel: string;
   }>;
   // FIX: Include all questions to display N/A for unanswered ones
@@ -27,6 +27,18 @@ type SubmissionItem = {
 type FormResponseModalListProps = {
   submissions: SubmissionItem[];
 };
+
+type DisplayQuestionItem =
+  | {
+      questionId: number;
+      label: string;
+      answerValue: number | null;
+    }
+  | {
+      responseId: number;
+      questionLabel: string;
+      answerValue: number | null;
+    };
 
 function scoreLabel(score: number): string {
   switch (score) {
@@ -160,13 +172,13 @@ export function FormResponseModalList({
                 </div>
 
                 <ul className="space-y-3">
-                  {(selectedSubmission.allQuestions ?? selectedSubmission.responses).map((item: any) => {
-                    const isUnanswered = selectedSubmission.allQuestions && item.answerValue === null;
-                    const questionLabel = selectedSubmission.allQuestions ? item.label : item.questionLabel;
-                    const answerValue = selectedSubmission.allQuestions ? item.answerValue : item.answerValue;
+                  {(selectedSubmission.allQuestions ?? selectedSubmission.responses).map((item: DisplayQuestionItem) => {
+                    const isUnanswered = item.answerValue === null || item.answerValue === undefined;
+                    const questionLabel = "label" in item ? item.label : item.questionLabel;
+                    const answerValue = item.answerValue;
                     
                     return (
-                      <li key={selectedSubmission.allQuestions ? item.questionId : item.responseId} className="rounded-2xl border border-border bg-surface p-4">
+                      <li key={"questionId" in item ? item.questionId : item.responseId} className="rounded-2xl border border-border bg-surface p-4">
                         <p className="text-sm font-medium text-text-default">{questionLabel}</p>
                         {isUnanswered ? (
                           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -180,7 +192,7 @@ export function FormResponseModalList({
                               Score: {answerValue}/5
                             </span>
                             <span className="rounded-full bg-surface-soft px-3 py-1 text-xs font-semibold text-text-default">
-                              {scoreLabel(answerValue)}
+                              {scoreLabel(Number(answerValue))}
                             </span>
                           </div>
                         )}
