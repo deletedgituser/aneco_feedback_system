@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/auth/password";
-import { createSession, setSessionCookie } from "@/lib/auth/session";
-import { logAuditEvent } from "@/lib/audit";
+import { apiError, apiSuccess } from "@/lib/api/response";
+import { loginWithCredentials } from "@/lib/services/auth-service";
 
 type LoginBody = {
   usernameOrEmail?: string;
@@ -13,101 +11,17 @@ export async function POST(request: Request) {
   const body = (await request.json()) as LoginBody;
 
   if (!body.usernameOrEmail || !body.password) {
-    return NextResponse.json(
-      { message: "Username/email and password are required." },
-      { status: 400 },
-    );
+    return apiError("Username/email and password are required.", 400, "VALIDATION_ERROR");
   }
 
-  const usernameOrEmail = body.usernameOrEmail.trim();
-  const normalizedInput = usernameOrEmail.toLowerCase();
-
-  const [admin, personnel] = await Promise.all([
-    prisma.admin.findUnique({
-      where: { username: usernameOrEmail },
-    }),
-    prisma.personnel.findFirst({
-      where: {
-        OR: [
-          { email: normalizedInput },
-          { username: usernameOrEmail },
-          { username: normalizedInput },
-          { name: usernameOrEmail },
-          { name: normalizedInput },
-        ],
-      },
-    }),
-  ]);
-
-
-  if (admin) {
-    const valid = await verifyPassword(body.password, admin.passwordHash);
-    if (!valid) {
-      await logAuditEvent({
-        actorRole: "system",
-        actionType: "auth.login.failed",
-        targetType: "admin",
-        metadata: { username: usernameOrEmail },
-      });
-      return NextResponse.json({ message: "Invalid credentials." }, { status: 401 });
-    }
-
-    const token = await createSession({
-      role: "admin",
-      adminId: admin.adminId,
-    });
-    await setSessionCookie(token);
-
-    await logAuditEvent({
-      actorRole: "admin",
-      actorId: admin.adminId,
-      actionType: "auth.login.success",
-      targetType: "admin",
-      targetId: admin.adminId,
-    });
-
-    return NextResponse.json({ role: "admin", redirectTo: "/admin" });
+  const result = await loginWithCredentials(body.usernameOrEmail, body.password);
+  if (result === "deactivated") {
+    return apiError("Account is deactivated.", 403, "ACCOUNT_DEACTIVATED");
   }
 
-  if (personnel) {
-    if (!personnel.isActive) {
-      return NextResponse.json({ message: "Account is deactivated." }, { status: 403 });
-    }
-
-    const valid = await verifyPassword(body.password, personnel.passwordHash);
-    if (!valid) {
-      await logAuditEvent({
-        actorRole: "system",
-        actionType: "auth.login.failed",
-        targetType: "personnel",
-        metadata: { email: normalizedInput },
-      });
-      return NextResponse.json({ message: "Invalid credentials." }, { status: 401 });
-    }
-
-    const token = await createSession({
-      role: "personnel",
-      personnelId: personnel.personnelId,
-    });
-    await setSessionCookie(token);
-
-    await logAuditEvent({
-      actorRole: "personnel",
-      actorId: personnel.personnelId,
-      actionType: "auth.login.success",
-      targetType: "personnel",
-      targetId: personnel.personnelId,
-    });
-
-    return NextResponse.json({ role: "personnel", redirectTo: "/dashboard" });
+  if (!result) {
+    return apiError("Invalid credentials.", 401, "INVALID_CREDENTIALS");
   }
 
-  await logAuditEvent({
-    actorRole: "system",
-    actionType: "auth.login.failed",
-    targetType: "unknown",
-    metadata: { value: usernameOrEmail },
-  });
-
-  return NextResponse.json({ message: "Invalid credentials." }, { status: 401 });
+  return apiSuccess(result);
 }

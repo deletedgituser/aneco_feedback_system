@@ -1,45 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getSessionPayload } from "@/lib/auth/session";
-import { hashPassword } from "@/lib/auth/password";
-import { logAuditEvent } from "@/lib/audit";
-import { validateEditAccountInput } from "@/lib/admin-account";
+import { apiError, apiSuccess } from "@/lib/api/response";
+import { parsePositiveInt } from "@/lib/api/request";
+import { requireRequestSession } from "@/lib/api/auth";
+import { getPersonnelAccount, updatePersonnelAccount } from "@/lib/services/admin-account-service";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSessionPayload();
-    if (!session?.adminId || session.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    const sessionResult = await requireRequestSession(request, ["admin"]);
+    if (!sessionResult.ok) {
+      return sessionResult.response;
     }
 
     const { id } = await params;
-    const personnelId = parseInt(id, 10);
-    if (!Number.isInteger(personnelId) || personnelId <= 0) {
-      return NextResponse.json({ message: "Invalid personnel ID" }, { status: 400 });
+    const personnelId = parsePositiveInt(id);
+    if (!personnelId) {
+      return apiError("Invalid personnel ID", 400, "INVALID_PERSONNEL_ID");
     }
 
-    const personnel = await prisma.personnel.findUnique({
-      where: { personnelId },
-      select: {
-        personnelId: true,
-        username: true,
-        name: true,
-        email: true,
-        isActive: true,
-      },
-    });
+    const personnel = await getPersonnelAccount(personnelId);
 
     if (!personnel) {
-      return NextResponse.json({ message: "Personnel account not found" }, { status: 404 });
+      return apiError("Personnel account not found", 404, "PERSONNEL_NOT_FOUND");
     }
 
-    return NextResponse.json(personnel);
+    return apiSuccess(personnel);
   } catch (error) {
     console.error("Error fetching personnel account:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return apiError("Internal server error", 500, "INTERNAL_SERVER_ERROR");
   }
 }
 
@@ -48,137 +38,26 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSessionPayload();
-    if (!session?.adminId || session.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    const sessionResult = await requireRequestSession(request, ["admin"]);
+    if (!sessionResult.ok) {
+      return sessionResult.response;
     }
 
     const { id } = await params;
-    const personnelId = parseInt(id, 10);
-
-    if (!Number.isInteger(personnelId) || personnelId <= 0) {
-      return NextResponse.json(
-        { message: "Invalid personnel ID" },
-        { status: 400 }
-      );
+    const personnelId = parsePositiveInt(id);
+    if (!personnelId) {
+      return apiError("Invalid personnel ID", 400, "INVALID_PERSONNEL_ID");
     }
 
     const body = await request.json();
-
-    let validated;
-    try {
-      validated = validateEditAccountInput(body);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Validation failed";
-      return NextResponse.json({ message }, { status: 400 });
+    const result = await updatePersonnelAccount(body, personnelId, sessionResult.payload.adminId as number);
+    if (!result.ok) {
+      return apiError(result.error, result.status, "UPDATE_ACCOUNT_FAILED");
     }
 
-    const { username, email, name, password } = validated;
-
-    // Check if personnel exists
-    const existing = await prisma.personnel.findUnique({
-      where: { personnelId },
-      select: { personnelId: true, email: true, username: true },
-    });
-
-    if (!existing) {
-      return NextResponse.json(
-        { message: "Personnel account not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if new email is already taken by someone else
-    if (email !== existing.email) {
-      const emailTaken = await prisma.personnel.findUnique({
-        where: { email },
-        select: { personnelId: true },
-      });
-
-      if (emailTaken) {
-        return NextResponse.json(
-          { message: "Email already exists" },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Check if new username is already taken by someone else
-    if (username !== existing.username) {
-      const usernameTaken = await prisma.personnel.findUnique({
-        where: { username },
-        select: { personnelId: true },
-      });
-
-      if (usernameTaken) {
-        return NextResponse.json(
-          { message: "Username already exists" },
-          { status: 409 }
-        );
-      }
-    }
-
-    const updateData: { username: string; email: string; name: string; passwordHash?: string } = {
-      username,
-      email,
-      name,
-    };
-
-    // If password is provided, hash it
-    if (password) {
-      const passwordHash = await hashPassword(password);
-      updateData.passwordHash = passwordHash;
-
-      // Update personnel
-      await prisma.personnel.update({
-        where: { personnelId },
-        data: updateData,
-      });
-
-      // Record password history
-      await prisma.passwordHistory.create({
-        data: {
-          personnelId,
-          passwordHash,
-        },
-      });
-
-      // Log audit event
-      await logAuditEvent({
-        actorRole: "admin",
-        actorId: session.adminId,
-        actionType: "UPDATE_ACCOUNT_WITH_PASSWORD",
-        targetType: "Personnel",
-        targetId: personnelId,
-        metadata: { email, name },
-      });
-    } else {
-      // Update personnel without password
-      await prisma.personnel.update({
-        where: { personnelId },
-        data: updateData,
-      });
-
-      // Log audit event
-      await logAuditEvent({
-        actorRole: "admin",
-        actorId: session.adminId,
-        actionType: "UPDATE_ACCOUNT",
-        targetType: "Personnel",
-        targetId: personnelId,
-        metadata: { email, name },
-      });
-    }
-
-    return NextResponse.json(
-      { message: "Account updated successfully" },
-      { status: 200 }
-    );
+    return apiSuccess({ message: "Account updated successfully" });
   } catch (error) {
     console.error("Error updating account:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return apiError("Internal server error", 500, "INTERNAL_SERVER_ERROR");
   }
 }
