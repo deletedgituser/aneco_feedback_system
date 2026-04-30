@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { logAuditEvent } from "@/lib/audit";
 import { getSessionPayload } from "@/lib/auth/session";
+import { deleteFormWithDependents } from "@/lib/services/forms";
 import { revalidatePath } from "next/cache";
 import { FlashToast } from "@/components/ui/flash-toast";
 import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
@@ -194,18 +195,10 @@ export default async function AdminFormsPage({
       redirect("/admin/forms?toastType=error&toastMessage=Invalid+form.");
     }
 
-    const feedbackCount = await prisma.feedback.count({
-      where: { formId },
-    });
-
-    if (feedbackCount > 0) {
-      redirect("/admin/forms?toastType=error&toastMessage=Form+cannot+be+deleted+because+it+already+has+submissions.");
+    const result = await deleteFormWithDependents(formId);
+    if (!result.deleted) {
+      redirect("/admin/forms?toastType=error&toastMessage=Form+not+found.");
     }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.question.deleteMany({ where: { formId } });
-      await tx.form.delete({ where: { formId } });
-    });
 
     await logAuditEvent({
       actorRole: "admin",
@@ -213,6 +206,7 @@ export default async function AdminFormsPage({
       actionType: "form.delete",
       targetType: "form",
       targetId: formId,
+      metadata: result,
     });
 
     revalidatePath("/admin/forms");

@@ -18,7 +18,7 @@ type DetailedRow = {
   assistedEmployee: string;
   comments: string;
   question: string;
-  rating: number;
+  rating: number | string;
 };
 
 function parseMode(searchParams: URLSearchParams): ReportMode {
@@ -134,16 +134,17 @@ export async function GET(request: NextRequest) {
         assistedEmployee: feedback.assistedEmployee ?? "",
         comments: feedback.comments ?? "",
         question: response.question.label,
-        rating: response.answerValue ?? 0,
+        rating: response.answerValue ?? "N/A",
       });
     }
   }
 
   const totalSubmissions = feedbackRows.length;
   const totalResponses = detailedRows.length;
+  const numericRatingRows = detailedRows.filter((row): row is DetailedRow & { rating: number } => typeof row.rating === "number");
   const averageRating =
-    totalResponses > 0
-      ? Number((detailedRows.reduce((sum, row) => sum + row.rating, 0) / totalResponses).toFixed(2))
+    numericRatingRows.length > 0
+      ? Number((numericRatingRows.reduce((sum, row) => sum + row.rating, 0) / numericRatingRows.length).toFixed(2))
       : 0;
 
   const distribution = [1, 2, 3, 4, 5].map((score) => ({
@@ -156,6 +157,9 @@ export async function GET(request: NextRequest) {
 
   for (const feedback of feedbackRows) {
     for (const response of feedback.responses) {
+      if (response.answerValue === null) {
+        continue;
+      }
       const formCurrent = perFormMap.get(feedback.form.formId) ?? {
         title: feedback.form.title,
         totalResponses: 0,

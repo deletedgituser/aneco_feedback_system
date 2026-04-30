@@ -105,8 +105,10 @@ async function getChartData() {
       totalResponses: 0,
       sum: 0,
     };
-    current.totalResponses += 1;
-    current.sum += row.answerValue;
+    if (row.answerValue !== null) {
+      current.totalResponses += 1;
+      current.sum += row.answerValue;
+    }
     perFormMap.set(formIdOfFeedback, current);
   }
 
@@ -128,6 +130,7 @@ async function getChartData() {
 
   const perQuestionMap = new Map<number, { label: string; totalResponses: number; sum: number }>();
   for (const row of responseRows) {
+    if (row.answerValue === null) continue;
     const current = perQuestionMap.get(row.question.questionId) ?? {
       label: row.question.label,
       totalResponses: 0,

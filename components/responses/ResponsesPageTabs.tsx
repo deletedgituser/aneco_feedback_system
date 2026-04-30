@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { RatingDistributionChart } from "./RatingDistributionChart";
+import { SentimentPieChart } from "./SentimentPieChart";
 import { SurveyResponseTallyTable } from "./SurveyResponseTallyTable";
 import { FormResponseModalList } from "@/components/dashboard/form-response-modal-list";
 import { FlashToast } from "@/components/ui/flash-toast";
-import type { PerQuestionStat, SentimentType } from "@/types";
+import type { SentimentType } from "@/types";
 
 type SubmissionItem = {
   feedbackId: number;
@@ -16,8 +18,13 @@ type SubmissionItem = {
   sentiment: SentimentType;
   responses: Array<{
     responseId: number;
-    answerValue: number;
+    answerValue: number | null;
     questionLabel: string;
+  }>;
+  allQuestions: Array<{
+    questionId: number;
+    label: string;
+    answerValue: number | null;
   }>;
 };
 
@@ -34,60 +41,59 @@ type TallyRow = {
 
 interface ResponsesPageTabsProps {
   submissions: SubmissionItem[];
-  stats: PerQuestionStat[];
   distribution: Array<{ score: number; count: number }>;
+  sentimentDistribution: Array<{ sentiment: SentimentType; count: number }>;
   currentPage: number;
   totalPages: number;
   prevPageHref?: string;
   nextPageHref?: string;
   tallyRows: TallyRow[];
   formId: number;
-  formTitle: string;
-  personnelName: string;
 }
 
 export function ResponsesPageTabs({
   submissions,
-  stats,
   distribution,
+  sentimentDistribution,
   currentPage,
   totalPages,
   prevPageHref,
   nextPageHref,
   tallyRows,
   formId,
-  formTitle,
-  personnelName,
 }: ResponsesPageTabsProps) {
   const [activeTab, setActiveTab] = useState<"responses" | "analytics">("responses");
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const searchParams = useSearchParams();
 
-  const handleDownloadPDF = async () => {
+  const buildExportUrl = (format: "pdf" | "excel") => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("formId", String(formId));
+    params.set("format", format);
+    return `/api/exports/report-tally?${params.toString()}`;
+  };
+
+  const handleDownload = async (format: "pdf" | "excel") => {
     try {
-      const response = await fetch(
-        `/api/exports/report-tally?formId=${formId}&format=pdf`,
-        {
-          method: "GET",
-        }
-      );
+      const response = await fetch(buildExportUrl(format), { method: "GET" });
 
       if (!response.ok) {
-        throw new Error("Failed to download PDF");
+        throw new Error(`Failed to download ${format.toUpperCase()}`);
       }
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `survey-response-tally-${formId}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      link.download = `survey-response-report-${formId}-${new Date().toISOString().slice(0, 10)}.${format === "pdf" ? "pdf" : "xlsx"}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      setToast({ type: "success", message: "PDF downloaded successfully." });
+      setToast({ type: "success", message: `${format.toUpperCase()} downloaded successfully.` });
     } catch (err) {
-      console.error("Error downloading PDF:", err);
-      setToast({ type: "error", message: "Failed to download PDF. Please try again." });
+      console.error("Error downloading report:", err);
+      setToast({ type: "error", message: `Failed to download ${format.toUpperCase()}. Please try again.` });
     }
   };
 
@@ -122,12 +128,18 @@ export function ResponsesPageTabs({
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
           )}
         </button>
-        <div className="ml-auto">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <button
-            onClick={handleDownloadPDF}
+            onClick={() => handleDownload("pdf")}
             className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
           >
             Download PDF
+          </button>
+          <button
+            onClick={() => handleDownload("excel")}
+            className="rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-default transition hover:bg-surface-soft"
+          >
+            Download Excel
           </button>
         </div>
       </div>
@@ -176,7 +188,13 @@ export function ResponsesPageTabs({
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-text-default">Rating Distribution</h3>
             </div>
-            <RatingDistributionChart key={distribution.map((d) => `${d.score}-${d.count}`).join("|")} data={distribution} />
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+              <RatingDistributionChart key={distribution.map((d) => `${d.score}-${d.count}`).join("|")} data={distribution} />
+              <SentimentPieChart
+                key={sentimentDistribution.map((d) => `${d.sentiment}-${d.count}`).join("|")}
+                data={sentimentDistribution}
+              />
+            </div>
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-text-default">Survey Response Tally</h3>
               <SurveyResponseTallyTable rows={tallyRows} />
